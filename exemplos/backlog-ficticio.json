@@ -37,6 +37,6 @@
      "descricao": "Dado sensível de exemplo. Se aparecer em qualquer espelho, a regra de escopo falhou."}
   ],
   "atividades": [
-    {"item": 6, "autor": "Pessoa (uso direto da ferramenta)", "quando": "2026-10-01T10:00:00", "comentario": "Ajuste feito direto na tela.", "mudancas": []}
+    {"item": 6, "autor": "Pessoa (uso direto da ferramenta)", "quando": "2020-01-01T10:00:00", "comentario": "Ajuste feito direto na tela.", "mudancas": []}
   ]
 }

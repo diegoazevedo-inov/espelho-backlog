@@ -18,7 +18,7 @@
     "arquivo": {"adaptador": "arquivo_espelho", "arquivo": "estado/espelho-arquivo.json"}
   },
   "_exemplos_de_espelhos_reais": {
-    "github": {"adaptador": "github", "repo": "espelho-do-backlog", "titulo_projeto": "Backlog — espelho"},
+    "github": {"adaptador": "github", "repo": "espelho-do-backlog", "titulo_projeto": "Backlog — espelho", "duracao_iteracao_dias": 14},
     "jira": {"adaptador": "jira", "site_env": "JIRA_SITE", "projeto": "CHAVE", "quadro": 1, "fuso": "-03:00",
              "tipos": {"Épico": "10001", "Tarefa": "10003", "Marco": "10003"},
              "reaproveitar_sprints_com_prefixo": null,

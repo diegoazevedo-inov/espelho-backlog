@@ -50,15 +50,21 @@ def credenciais(nome):
         return dict(l.strip().split("=", 1) for l in f if "=" in l and not l.startswith("#"))
 
 
+def _modulo(nome):
+    """'jira' → adaptadores.jira; um nome com ponto ('pacote.modulo') é importado como está,
+    para que qualquer fonte ou espelho externo possa ser usado sem alterar este repositório."""
+    return importlib.import_module(nome if "." in nome else f"adaptadores.{nome}")
+
+
 def fonte(cfg):
     """A fonte da verdade (o adaptador que o método consulta e altera)."""
-    return importlib.import_module(f"adaptadores.{cfg['fonte']['adaptador']}").Fonte(cfg)
+    return _modulo(cfg["fonte"]["adaptador"]).Fonte(cfg)
 
 
 def espelho(cfg, nome):
     """Um espelho: só recebe. Na etapa 1, nada volta dele para a fonte."""
     conf = cfg["espelhos"][nome]
-    return importlib.import_module(f"adaptadores.{conf['adaptador']}").Espelho(cfg, conf)
+    return _modulo(conf["adaptador"]).Espelho(cfg, conf)
 
 
 def fluxo(cfg):

@@ -54,13 +54,15 @@ mudou sem depender do relógio de cada ferramenta.
 |---|---|
 | `sm.py` | O método como código: consultar, criar, mover, comentar, sprint, WIP e medição |
 | `espelho.py` | Reflete a fonte nos espelhos, com escopo declarado e idempotência |
-| `nucleo.py` | Configuração, credenciais e estado. Nomes da instalação (projetos, quadros, repositório, fuso, IDs de tipos e campos do Jira) vêm da configuração; os únicos valores padrão no código são os IDs de prioridade do Jira Cloud, sobrescrevíveis |
+| `nucleo.py` | Configuração, credenciais e estado. Nomes da instalação (projetos, quadros, repositório, fuso, IDs de tipos e campos do Jira) vêm da configuração; o código só tem valores padrão, todos sobrescrevíveis: IDs de prioridade do Jira Cloud, fuso UTC e iteração de 14 dias no GitHub |
 | `adaptadores/` | Um arquivo por ferramenta: `openproject` (fonte), `jira`, `trello`, `github` (espelhos) e `arquivo`/`arquivo_espelho` (locais, para reproduzir sem conta) |
 | `skill/SKILL.md` | Instruções para o sistema agêntico operar o método por conversa |
 | `testes/` | As regras do método e o espelhamento local como testes, e as sabotagens que provam os testes. Os adaptadores das ferramentas reais dependem de conta e não têm teste automatizado; foram verificados contra as ferramentas no experimento |
 | `config.exemplo.json` | Configuração do backlog fictício; serve de modelo para uma instalação real |
 
-Trocar de ferramenta é escrever um adaptador com as mesmas funções. O método não muda.
+Trocar de ferramenta é escrever um adaptador com as mesmas funções. O método não muda. Um
+adaptador fora deste repositório é indicado na configuração pelo nome do módulo com ponto
+(`pacote.modulo`).
 
 ## Reproduza
 
@@ -76,17 +78,19 @@ python3 espelho.py arquivo                     # reflete no espelho local
 python3 espelho.py arquivo                     # segunda rodada: nada muda
 python3 sm.py prova                            # quantas mudanças vieram do agente
 
-python3 -m unittest discover -s testes -v      # 21 testes
-bash testes/sabotagens.sh                      # 18 defeitos plantados, todos pegos; 1 controle
+python3 -m unittest discover -s testes -v      # 39 testes
+bash testes/sabotagens.sh                      # 26 defeitos plantados, todos pegos; 1 controle
 ```
 
 As saídas indicadas valem para um clone novo. Para repetir do zero: `rm -rf estado`. Um
 `config.json` local, se existir, tem precedência sobre o exemplo.
 
 No espelho local, os testes conferem o conteúdo de cada cartão contra a fonte (coluna, título,
-horas, sprint, épico pai e descrição), e não só a contagem. As sabotagens S5 a S18 vêm de duas
-rodadas de auditoria independente: defeitos que a auditoria plantou e os testes da época não
-pegavam, mais brechas que ela encontrou. Cada uma virou um teste. O script exige que cada trecho
+horas, sprint, épico pai e descrição), e não só a contagem. As travas da DoD e do WIP rodam duas
+vezes: com a fonte local e com uma fonte externa de outro nome, para provar que as regras não
+dependem de qual ferramenta é a fonte. As sabotagens S5 a S26 vêm de três rodadas de auditoria
+independente: defeitos que a auditoria plantou e os testes da época não pegavam, mais sabotagens
+dirigidas a cada afirmação de comportamento destes textos. Cada uma virou um teste. O script exige que cada trecho
 sabotado seja único no arquivo, para que nenhuma sabotagem atinja o lugar errado em silêncio.
 
 O backlog fictício tem um segundo projeto fora do escopo do espelho. O teste de escopo procura no

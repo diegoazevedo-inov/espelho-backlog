@@ -55,6 +55,9 @@ class Base(unittest.TestCase):
         with open(os.path.join(self.tmp, "estado", "fonte.json"), encoding="utf-8") as f:
             return json.load(f)
 
+    def status_na_fonte(self, item_id):
+        return next(i["status"] for i in self.fonte_bruta()["itens"] if i["id"] == item_id)
+
     def cartao_de(self, op_id):
         for c in self.espelho_bruto()["cartoes"].values():
             if re.search(rf"op:{op_id}\s*$", c["descricao"]): return c
@@ -70,12 +73,13 @@ class TravasDoMetodo(Base):
         r = self.sm("mover", "3", "Concluído")
         self.assertNotEqual(r.returncode, 0)
         self.assertIn("DoD", r.stderr)
-        self.assertIn("Backlog", self.sm("ver", "3").stdout)          # nada mudou na fonte
+        self.assertEqual(self.status_na_fonte(3), "Backlog")           # o status atual, não o histórico
 
     def test_dod_recusa_evidencia_em_branco(self):
         r = self.sm("mover", "3", "Concluído", "--evidencia", "   ")
         self.assertNotEqual(r.returncode, 0)
         self.assertIn("DoD", r.stderr)
+        self.assertEqual(self.status_na_fonte(3), "Backlog")
 
     def test_dod_aceita_com_evidencia_e_registra(self):
         r = self.sm("mover", "3", "Concluído", "--evidencia", "teste de bloqueio: 6ª tentativa recusada (log anexo)")
@@ -86,6 +90,7 @@ class TravasDoMetodo(Base):
         r = self.sm("mover", "3", "Concluído", "--forcar")
         self.assertNotEqual(r.returncode, 0)
         self.assertIn("DoD", r.stderr)
+        self.assertEqual(self.status_na_fonte(3), "Backlog")
 
     def test_wip_recusa_o_terceiro(self):
         self.assertEqual(self.sm("mover", "3", "Em execução").returncode, 0)
@@ -94,6 +99,20 @@ class TravasDoMetodo(Base):
         self.assertNotEqual(r.returncode, 0)
         self.assertIn("WIP", r.stderr)
         self.assertIn("2/2", r.stderr)
+
+    def test_wip_vale_para_toda_coluna_com_limite(self):
+        self.sm("projetos")                                            # cria a fonte de trabalho
+        with open(os.path.join(self.tmp, "config.exemplo.json"), encoding="utf-8") as f:
+            limites = json.load(f)["metodo"]["wip"]["produto-exemplo"]
+        self.assertGreaterEqual(len(limites), 2)
+        for coluna, lim in limites.items():
+            livres = [i["id"] for i in self.fonte_bruta()["itens"]
+                      if i["tipo"] == "Tarefa" and i["status"] == "Backlog" and i["projeto_id"] == "produto-exemplo"]
+            for item in livres[:lim]:
+                self.assertEqual(self.sm("mover", str(item), coluna).returncode, 0)
+            r = self.sm("mover", str(livres[lim]), coluna)
+            self.assertNotEqual(r.returncode, 0, f"WIP de '{coluna}' não recusou")
+            self.assertEqual(self.status_na_fonte(livres[lim]), "Backlog")
 
     def test_wip_nao_conta_epicos(self):
         self.assertEqual(self.sm("mover", "1", "Em execução").returncode, 0)    # épico
@@ -171,6 +190,36 @@ class Espelhamento(Base):
         self.assertIn("11 adotados pelo marcador", out)
         self.assertEqual(sum(self.cartoes().values()), 11)
 
+    def test_identidade_nunca_pelo_titulo(self):
+        """Dois itens com o mesmo título e o estado local perdido: cada um mantém o seu cartão."""
+        self.espelho("arquivo")
+        self.sm("criar", "Exportar relatório mensal em CSV", "--sprint", "S2", "--horas", "2")   # mesmo título do #6
+        os.remove(os.path.join(self.tmp, "estado", "arquivo.json"))
+        out = self.espelho("arquivo").stdout
+        self.assertIn("1 criados", out)
+        self.assertIn("11 adotados pelo marcador", out)
+        self.assertEqual(self.cartoes()[6], 1)
+        self.assertEqual(self.cartoes()[13], 1)
+        self.assertEqual(sum(self.cartoes().values()), 12)
+
+    def test_nada_volta_do_espelho_para_a_fonte(self):
+        self.sm("projetos")                                            # cria a fonte de trabalho
+        with open(os.path.join(self.tmp, "estado", "fonte.json"), "rb") as f:
+            antes = f.read()
+        self.espelho("arquivo"); self.espelho("arquivo")
+        with open(os.path.join(self.tmp, "estado", "fonte.json"), "rb") as f:
+            self.assertEqual(f.read(), antes)
+
+    def test_estado_guarda_copia_de_referencia_de_cada_item(self):
+        self.espelho("arquivo")
+        with open(os.path.join(self.tmp, "estado", "arquivo.json"), encoding="utf-8") as f:
+            est = json.load(f)
+        for i in self.fonte_bruta()["itens"]:
+            if i["projeto_id"] != "produto-exemplo": continue
+            snap = est[str(i["id"])]["snap"]
+            for campo in ("assunto", "descricao", "status", "tipo", "sprint", "horas", "pai_id"):
+                self.assertEqual(snap[campo], i[campo], f"snap do item {i['id']}: {campo}")
+
     def test_mudanca_na_fonte_atualiza_sem_criar(self):
         self.espelho("arquivo")
         self.sm("editar", "6", "--assunto", "Exportar relatório mensal em CSV e PDF")
@@ -223,9 +272,66 @@ class Medicao(Base):
         self.assertIn("Pessoa (uso direto da ferramenta)", out)
 
     def test_prova_respeita_o_periodo(self):
+        """A atividade do autor fictício é de 2020; a do agente, de agora."""
         self.sm("mover", "3", "Em execução")
+        self.assertIn("2 mudanças", self.sm("prova").stdout)
+        self.assertIn("Desde 2021-01-01: 1 mudanças", self.sm("prova", "--desde", "2021-01-01").stdout)
         self.assertIn("0 mudanças", self.sm("prova", "--desde", "2999-01-01").stdout)
-        self.assertIn("Desde 2026-10-01: 2 mudanças", self.sm("prova", "--desde", "2026-10-01").stdout)
+
+
+class OutraFonte(TravasDoMetodo):
+    """As mesmas travas, com outra fonte da verdade (módulo externo, nome diferente):
+    as regras do método não podem depender de qual ferramenta é a fonte."""
+    def setUp(self):
+        super().setUp()
+        pacote = os.path.join(self.tmp, "fonte_externa")
+        os.makedirs(pacote)
+        open(os.path.join(pacote, "__init__.py"), "w").close()
+        with open(os.path.join(pacote, "fonte.py"), "w", encoding="utf-8") as f:
+            f.write("from adaptadores.arquivo import Fonte as _Base\n\n"
+                    "class Fonte(_Base):\n    nome = 'outra-ferramenta'\n")
+        caminho = os.path.join(self.tmp, "config.exemplo.json")
+        with open(caminho, encoding="utf-8") as f:
+            cfg = json.load(f)
+        cfg["fonte"]["adaptador"] = "fonte_externa.fonte"
+        with open(caminho, "w", encoding="utf-8") as f:
+            json.dump(cfg, f, ensure_ascii=False)
+        self.env["PYTHONPATH"] = self.tmp
+
+    def test_a_fonte_e_mesmo_outra(self):
+        self.assertIn("fonte: outra-ferramenta", self.sm("prova").stdout)
+
+
+class Configuracao(unittest.TestCase):
+    def test_config_local_tem_precedencia_sobre_o_exemplo(self):
+        tmp = tempfile.mkdtemp(prefix="espelho-teste-")
+        try:
+            repo = os.path.join(tmp, "repo")
+            shutil.copytree(RAIZ, repo, ignore=shutil.ignore_patterns(".git", "estado", "__pycache__", "config.json"))
+            with open(os.path.join(repo, "config.exemplo.json"), encoding="utf-8") as f:
+                cfg = json.load(f)
+            cfg["metodo"]["capacidade_horas_sprint"]["produto-exemplo"] = 30
+            with open(os.path.join(repo, "config.json"), "w", encoding="utf-8") as f:
+                json.dump(cfg, f, ensure_ascii=False)
+            env = {k: v for k, v in os.environ.items() if k != "ESPELHO_CONFIG"}
+            env["PYTHONDONTWRITEBYTECODE"] = "1"
+            out = subprocess.run([sys.executable, os.path.join(repo, "sm.py"), "sprint", "S1"],
+                                 capture_output=True, text=True, env=env, cwd=tmp).stdout
+            self.assertIn("23h de 30h", out)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_credenciais_lidas_de_ESPELHO_CREDENCIAIS(self):
+        tmp = tempfile.mkdtemp(prefix="espelho-teste-")
+        try:
+            with open(os.path.join(tmp, "ferramenta.env"), "w", encoding="utf-8") as f:
+                f.write("# comentário\nCHAVE=valor-de-teste\n")
+            env = dict(os.environ, ESPELHO_CREDENCIAIS=tmp, PYTHONPATH=RAIZ, PYTHONDONTWRITEBYTECODE="1")
+            r = subprocess.run([sys.executable, "-c", "import nucleo; print(nucleo.credenciais('ferramenta')['CHAVE'])"],
+                               capture_output=True, text=True, env=env, cwd=tmp)
+            self.assertEqual(r.stdout.strip(), "valor-de-teste", r.stderr)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
 
 
 if __name__ == "__main__":

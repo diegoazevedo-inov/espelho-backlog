@@ -103,8 +103,9 @@ class Espelho:
             if not ok: self._novo("Etapa", "SINGLE_SELECT", f",singleSelectOptions:[{opcoes}]")
         todas = sorted({(s["nome"], s["inicio"]) for lst in sprints.values() for s in lst if s["inicio"]}, key=lambda x: x[1])
         if "Sprint" not in f and todas:
-            its = ",".join(f'{{title:"{n}",startDate:"{i}",duration:14}}' for n, i in todas)
-            ok = self._gql(f'mutation($p:ID!){{createProjectV2Field(input:{{projectId:$p,dataType:ITERATION,name:"Sprint",iterationConfiguration:{{startDate:"{todas[0][1]}",duration:14,iterations:[{its}]}}}}){{projectV2Field{{... on ProjectV2FieldCommon{{id}}}}}}}}',
+            dur = int(self.conf.get("duracao_iteracao_dias", 14))
+            its = ",".join(f'{{title:"{n}",startDate:"{i}",duration:{dur}}}' for n, i in todas)
+            ok = self._gql(f'mutation($p:ID!){{createProjectV2Field(input:{{projectId:$p,dataType:ITERATION,name:"Sprint",iterationConfiguration:{{startDate:"{todas[0][1]}",duration:{dur},iterations:[{its}]}}}}){{projectV2Field{{... on ProjectV2FieldCommon{{id}}}}}}}}',
                            {"p": self.pid}, falha_ok=True)
             if not ok:
                 ops = ",".join(f'{{name:"{n}",color:BLUE,description:"{i}"}}' for n, i in todas)
