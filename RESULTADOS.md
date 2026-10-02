@@ -82,7 +82,7 @@ Os 11 itens pendentes são mudanças reais feitas na fonte depois de 24/09, aind
 ## Auditoria independente (02/10/2026)
 
 Antes da publicação, o repositório foi auditado por uma sessão separada, sem acesso ao backlog
-real, em cinco rodadas. Em todas, histórico, segredos, dados reais e reprodutibilidade foram
+real, em seis rodadas. Em todas, histórico, segredos, dados reais e reprodutibilidade foram
 aprovados; o que variou foi a confiança nos testes.
 Autor e fuso dos commits foram deixados para decisão do dono.
 
@@ -93,6 +93,7 @@ Autor e fuso dos commits foram deixados para decisão do dono.
 | 3 | `23c6416` | os 15 anteriores + 16 sabotagens dirigidas, uma por afirmação dos textos | 15 dos antigos, 8 das dirigidas | veredito "não pode ir a público": o teste da DoD aceitava o item concluído sem evidência, porque procurava uma palavra que também aparecia no histórico |
 | 4 | `25cd503` | os 15 anteriores + 16 dirigidas da rodada 3 + dirigidas ao texto novo | 15 dos antigos, 15 das 16 da rodada 3; 3 afirmações novas sem sabotagem pega | a "fonte externa" herdava da local; o título repetido tinha horas diferentes; o espelho externo não era testado |
 | 5 | `e838c69` | todas as anteriores + dirigidas ao texto novo | 23 de 23 dirigidas, 15 de 15 antigos; 2 afirmações novas sem sabotagem pega | a fonte externa repassava até os atributos internos da local; a saída de `sm projetos` e a sprint de `sm criar` não eram conferidas |
+| 6 | `9537c90` | 29 dirigidas das rodadas anteriores + 15 antigos + 3 novas | todas pegas | nenhum bloqueante ou ressalva; veredito "pode ir a público" |
 
 Cada defeito que escapou e cada brecha virou um teste e uma sabotagem (S5 a S36), e os textos
 passaram a dizer só o que o código sustenta. O próprio script de sabotagem tinha um alvo errado
@@ -104,6 +105,9 @@ que esse teste pegue a sabotagem dirigida àquela afirmação. As afirmações s
 reais (rótulo `op-ID` no Jira, épico como etiqueta no Trello, custos de tradução, leitura do
 vocabulário pelos adaptadores, `gh auth login`) são evidência observada no experimento, declarada
 como tal: esses adaptadores não têm teste automatizado.
+A fonte externa usada nos testes expõe só a interface pública, mas delega à implementação
+local por trás dela: os testes provam que as regras dependem apenas da interface, não que
+uma fonte real diferente tenha a mesma semântica.
 
 ## O que a etapa 1 não demonstra
 
