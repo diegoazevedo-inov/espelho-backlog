@@ -15,8 +15,11 @@ agente executa as regras, e os quadros servem para quem precisa ver.
 1. **Uma fonte da verdade.** Os itens vivem numa ferramenta; as demais são espelhos. Na etapa 1,
    nada volta de um espelho para a fonte.
 2. **Identidade no próprio item.** Cada cartão espelhado carrega o ID de origem (marcador
-   `op:ID`). Atualiza-se por esse ID, nunca por título, e nunca pela memória de quem sincroniza:
-   se a resposta de uma criação se perde, o marcador no cartão impede a duplicata.
+   `op:ID`; no Jira, o rótulo `op-ID`, porque rótulo não aceita dois-pontos). O estado local de
+   quem sincroniza acelera o trabalho, mas o marcador no item é a identidade de última instância:
+   se a resposta de uma criação se perde, ou se o estado local some, nada duplica, porque antes de
+   criar procura-se o marcador. Nunca se identifica um item pelo título. Exceção declarada: no
+   Trello, que não tem épico, o épico vira uma etiqueta, e essa etiqueta é achada pelo nome.
 3. **As regras do método são código, não costume.** Item sem evidência não chega ao status final;
    coluna com WIP cheio recusa o próximo item; sprint acima da capacidade aparece como excesso.
    Essas regras valem igualmente para qualquer ferramenta, porque não dependem de nenhuma.
@@ -32,8 +35,9 @@ verificáveis em vez de dependentes de boa vontade.
 ## O que está demonstrado (etapa 1)
 
 Um backlog real de 71 itens, em seis sprints, foi refletido a partir de um OpenProject em Jira,
-Trello e GitHub Projects. Em cada espelho: a segunda rodada não alterou nada, nenhuma duplicata
-apareceu mesmo com a rede caindo no meio da carga, e as horas por sprint batem com a fonte. Os
+Trello e GitHub Projects. Nos três, a segunda rodada não alterou nada, nenhuma duplicata apareceu
+e as horas por sprint batem com a fonte; em dois deles (Trello e GitHub), isso valeu mesmo com a
+rede caindo no meio da carga. Os
 números, o custo de tradução de cada ferramenta e as falhas encontradas estão em
 [RESULTADOS.md](RESULTADOS.md).
 
@@ -50,10 +54,10 @@ mudou sem depender do relógio de cada ferramenta.
 |---|---|
 | `sm.py` | O método como código: consultar, criar, mover, comentar, sprint, WIP e medição |
 | `espelho.py` | Reflete a fonte nos espelhos, com escopo declarado e idempotência |
-| `nucleo.py` | Configuração, credenciais e estado: o único lugar com nomes da instalação |
+| `nucleo.py` | Configuração, credenciais e estado. Nomes da instalação (projetos, quadros, repositório, fuso, IDs de campos) vêm todos da configuração, nunca do código |
 | `adaptadores/` | Um arquivo por ferramenta: `openproject` (fonte), `jira`, `trello`, `github` (espelhos) e `arquivo`/`arquivo_espelho` (locais, para reproduzir sem conta) |
 | `skill/SKILL.md` | Instruções para o sistema agêntico operar o método por conversa |
-| `testes/` | Cada afirmação deste README como teste, e as sabotagens que provam os testes |
+| `testes/` | As regras do método e o espelhamento local como testes, e as sabotagens que provam os testes. Os adaptadores das ferramentas reais dependem de conta e não têm teste automatizado; foram verificados contra as ferramentas no experimento |
 | `config.exemplo.json` | Configuração do backlog fictício; serve de modelo para uma instalação real |
 
 Trocar de ferramenta é escrever um adaptador com as mesmas funções. O método não muda.
@@ -72,12 +76,21 @@ python3 espelho.py arquivo                     # reflete no espelho local
 python3 espelho.py arquivo                     # segunda rodada: nada muda
 python3 sm.py prova                            # quantas mudanças vieram do agente
 
-python3 -m unittest discover -s testes -v      # 12 testes
-bash testes/sabotagens.sh                      # 4 defeitos plantados, todos pegos; 1 controle
+python3 -m unittest discover -s testes -v      # 16 testes
+bash testes/sabotagens.sh                      # 11 defeitos plantados, todos pegos; 1 controle
 ```
 
-O backlog fictício tem um segundo projeto fora do escopo do espelho. O teste de escopo prova que
-nada dele sai da fonte.
+As saídas indicadas valem para um clone novo. Para repetir do zero: `rm -rf estado`. Um
+`config.json` local, se existir, tem precedência sobre o exemplo.
+
+No espelho local, os testes conferem o conteúdo de cada cartão contra a fonte (coluna, título,
+horas, sprint), e não só a contagem. As sabotagens S5 a S11 vêm de uma auditoria independente:
+S6 a S11 são defeitos que ela plantou e a primeira versão dos testes não pegava; S5 é uma brecha
+que ela encontrou na Definition of Done. Cada uma virou um teste.
+
+O backlog fictício tem um segundo projeto fora do escopo do espelho. O teste de escopo procura no
+espelho cada campo de texto dos itens desse projeto (título e descrição, não só o ID) e falha se
+qualquer um aparecer.
 
 A medição de [RESULTADOS.md](RESULTADOS.md) foi feita sobre dados que não estão aqui. O comando
 `sm prova` é o mesmo: reproduza o método e gere o seu número.

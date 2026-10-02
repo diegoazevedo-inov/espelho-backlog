@@ -1,6 +1,7 @@
 """Espelho Jira Cloud.
 
-Identidade: rótulo op-<ID> + link para a fonte na descrição.
+Identidade: rótulo op-<ID> (variação do marcador op:ID, porque rótulo não aceita dois-pontos)
++ link para a fonte na descrição.
 Horas → campo de story points (1 ponto = 1 hora): projeto gerenciado pela equipe não expõe
 controle de tempo na criação. É uma tradução imposta pela ferramenta, e fica declarada aqui.
 Status: os nomes da configuração precisam existir no fluxo do projeto (transição por nome).
@@ -32,6 +33,7 @@ class Espelho:
         global PROJETO, QUADRO, FUSO, TIPOS, SP, SPRINT, INICIO
         PROJETO, QUADRO, FUSO, TIPOS = conf["projeto"], conf["quadro"], conf.get("fuso", "+00:00"), conf["tipos"]
         SP, SPRINT, INICIO = conf["campo_pontos"], conf["campo_sprint"], conf["campo_inicio"]
+        self.conf = conf
         self.url, auth = _env()
         self.h = {"Authorization": "Basic " + auth, "Accept": "application/json", "Content-Type": "application/json"}
 
@@ -51,7 +53,9 @@ class Espelho:
         todas = sorted({(s["nome"], s["inicio"], s["fim"]) for lst in sprints.values() for s in lst if s["inicio"]}, key=lambda x: x[1])
         existentes = self._r("GET", f"/rest/agile/1.0/board/{QUADRO}/sprint?maxResults=50")["values"]
         porn = {s["name"]: s for s in existentes}
-        livres = [s for s in sorted(existentes, key=lambda s: s["id"], reverse=True) if s["name"].startswith("SCRUM Sprint")]
+        prefixo = self.conf.get("reaproveitar_sprints_com_prefixo")   # sprints criadas pelo assistente do Jira
+        livres = [s for s in sorted(existentes, key=lambda s: s["id"], reverse=True)
+                  if prefixo and s["name"].startswith(prefixo)]
         self.sprint_id = {}
         for nome, ini, fim in todas:
             datas = {"startDate": f"{ini}T09:00:00.000{FUSO}", "endDate": f"{fim}T18:00:00.000{FUSO}"}

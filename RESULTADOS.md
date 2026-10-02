@@ -47,9 +47,11 @@ concluir são aplicadas. As regras moram fora delas, no código do método.
    aceitava a criação e a resposta se perdia; a rodada seguinte criaria uma duplicata. A correção
    foi tornar o marcador op:ID, gravado no próprio cartão, a identidade de fato, e reconciliar por
    ele antes de criar. Coberto pelo teste `test_resposta_perdida_nao_duplica` e pela sabotagem S3.
-3. **O vocabulário das colunas estava espalhado.** Os nomes dos status apareciam em nove lugares
-   (fonte, três espelhos, configuração, skill, monitor e adaptadores). No código publicado, todos
-   leem de `metodo.status_fluxo`.
+3. **O vocabulário das colunas estava espalhado.** Os nomes dos status apareciam em nove lugares:
+   a fonte, os três espelhos, a configuração do método, a skill, um monitor de WIP que roda à parte
+   (não publicado) e os adaptadores do Trello e do GitHub. No código publicado, a skill e os
+   adaptadores leem de `metodo.status_fluxo`; nas ferramentas, os nomes precisam ser configurados
+   uma vez para coincidir.
 
 ## Medição de uso (28/09/2026 a 02/10/2026)
 
@@ -76,6 +78,16 @@ o comportamento não mudou, as duas versões rodaram em simulação sobre o mesm
 | Trello | idem | idem |
 
 Os 11 itens pendentes são mudanças reais feitas na fonte depois de 24/09, ainda não espelhadas.
+
+## Auditoria independente (02/10/2026)
+
+O repositório foi auditado por uma sessão separada, sem acesso ao backlog real, antes de ser
+publicado. Veredito: pode ir a público com ressalvas. Histórico, segredos, dados reais e
+reprodutibilidade foram aprovados. Dos 8 defeitos que a auditoria plantou, 6 passaram pelos
+testes da primeira versão, e 4 afirmações dos textos iam além do código. A auditoria também achou
+uma brecha na Definition of Done (evidência só com espaços era aceita). Os 6 defeitos e a brecha
+viraram testes e sabotagens (S6 a S11 e S5), e os textos foram corrigidos para dizer só o que o
+código sustenta.
 
 ## O que a etapa 1 não demonstra
 

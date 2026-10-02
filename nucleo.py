@@ -1,7 +1,8 @@
 """Núcleo compartilhado: configuração, credenciais e estado.
 
 Todo nome específico de uma instalação (projetos, quadros, repositório, fuso, vocabulário
-das colunas) vem da configuração. O código não conhece nenhum backlog real.
+das colunas, prefixo de sprints a reaproveitar) vem da configuração. O código não conhece
+nenhum backlog real. Os IDs internos de tipos e campos do Jira também vêm da configuração.
 
 Ordem de busca da configuração:
   1. variável de ambiente ESPELHO_CONFIG

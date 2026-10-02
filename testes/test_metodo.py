@@ -1,4 +1,8 @@
-"""Cada afirmação do README é um teste. Roda sem rede e sem conta em ferramenta nenhuma.
+"""As regras do método e o espelhamento local, como testes. Roda sem rede e sem conta.
+
+Os adaptadores das ferramentas reais (OpenProject, Jira, Trello, GitHub) não têm teste
+automatizado aqui, porque dependem de conta; foram verificados contra as ferramentas no
+experimento (RESULTADOS.md).
 
     python3 -m unittest discover -s testes -v
 
@@ -43,9 +47,20 @@ class Base(unittest.TestCase):
     def espelho(self, *args, extra_env=None):
         return self.rodar("espelho.py", *args, extra_env=extra_env)
 
-    def cartoes(self):
+    def espelho_bruto(self):
         with open(os.path.join(self.tmp, "estado", "espelho-arquivo.json"), encoding="utf-8") as f:
-            d = json.load(f)
+            return json.load(f)
+
+    def fonte_bruta(self):
+        with open(os.path.join(self.tmp, "estado", "fonte.json"), encoding="utf-8") as f:
+            return json.load(f)
+
+    def cartao_de(self, op_id):
+        for c in self.espelho_bruto()["cartoes"].values():
+            if re.search(rf"op:{op_id}\s*$", c["descricao"]): return c
+
+    def cartoes(self):
+        d = self.espelho_bruto()
         return collections.Counter(int(re.search(r"op:(\d+)\s*$", c["descricao"]).group(1))
                                    for c in d["cartoes"].values())
 
@@ -56,6 +71,11 @@ class TravasDoMetodo(Base):
         self.assertNotEqual(r.returncode, 0)
         self.assertIn("DoD", r.stderr)
         self.assertIn("Backlog", self.sm("ver", "3").stdout)          # nada mudou na fonte
+
+    def test_dod_recusa_evidencia_em_branco(self):
+        r = self.sm("mover", "3", "Concluído", "--evidencia", "   ")
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("DoD", r.stderr)
 
     def test_dod_aceita_com_evidencia_e_registra(self):
         r = self.sm("mover", "3", "Concluído", "--evidencia", "teste de bloqueio: 6ª tentativa recusada (log anexo)")
@@ -69,6 +89,12 @@ class TravasDoMetodo(Base):
         self.assertNotEqual(r.returncode, 0)
         self.assertIn("WIP", r.stderr)
         self.assertIn("2/2", r.stderr)
+
+    def test_wip_nao_conta_epicos(self):
+        self.assertEqual(self.sm("mover", "1", "Em execução").returncode, 0)    # épico
+        self.assertEqual(self.sm("mover", "2", "Em execução").returncode, 0)    # épico
+        self.assertEqual(self.sm("mover", "3", "Em execução").returncode, 0)
+        self.assertEqual(self.sm("mover", "4", "Em execução").returncode, 0)
 
     def test_wip_forcado_fica_registrado(self):
         self.sm("mover", "3", "Em execução"); self.sm("mover", "4", "Em execução")
@@ -92,6 +118,24 @@ class Espelhamento(Base):
         segunda = self.espelho("arquivo").stdout
         self.assertIn("11 criados", primeira)
         self.assertIn("0 criados, 0 atualizados, 11 sem mudança", segunda)
+
+    def test_conteudo_do_cartao_bate_com_a_fonte(self):
+        self.espelho("arquivo")
+        for i in self.fonte_bruta()["itens"]:
+            if i["projeto_id"] != "produto-exemplo": continue
+            c = self.cartao_de(i["id"])
+            self.assertIsNotNone(c, f"item {i['id']} sem cartão")
+            self.assertEqual(c["coluna"], i["status"])
+            self.assertEqual(c["tipo"], i["tipo"])
+            self.assertEqual(c["sprint"], i["sprint"])
+            esperado = i["assunto"] + (f" · {i['horas']:g}h" if i["horas"] else "")
+            self.assertEqual(c["titulo"], esperado)
+
+    def test_mudanca_de_status_reflete_no_espelho(self):
+        self.espelho("arquivo")
+        self.sm("mover", "3", "Em execução")
+        self.assertIn("0 criados, 1 atualizados", self.espelho("arquivo").stdout)
+        self.assertEqual(self.cartao_de(3)["coluna"], "Em execução")
 
     def test_mudanca_na_fonte_atualiza_sem_criar(self):
         self.espelho("arquivo")
@@ -122,16 +166,24 @@ class Espelhamento(Base):
         self.espelho("arquivo")
         self.assertNotIn(12, self.cartoes())                           # item do projeto restrito
         with open(os.path.join(self.tmp, "estado", "espelho-arquivo.json"), encoding="utf-8") as f:
-            self.assertNotIn("nunca pode sair da fonte", f.read())
+            espelhado = f.read()
+        fora = [i for i in self.fonte_bruta()["itens"] if i["projeto_id"] != "produto-exemplo"]
+        self.assertTrue(fora)
+        for i in fora:                                                 # todo campo de texto, não só o título
+            for campo, valor in i.items():
+                if isinstance(valor, str) and len(valor) >= 4 and valor != "Backlog" and valor not in ("Tarefa", "Alta"):
+                    self.assertNotIn(valor, espelhado, f"campo '{campo}' do item {i['id']} vazou")
 
 
 class Medicao(Base):
-    def test_prova_atribui_mudancas_ao_agente(self):
+    def test_prova_distingue_autores(self):
+        """O backlog fictício traz 1 mudança feita direto na ferramenta, por outro autor."""
         self.sm("mover", "3", "Em execução")
         self.sm("comentar", "3", "Daily: tela pronta, falta o bloqueio")
         out = self.sm("prova").stdout
-        self.assertIn("2 mudanças", out)
-        self.assertIn("100.0% por linguagem natural", out)
+        self.assertIn("3 mudanças", out)
+        self.assertIn("66.7% por linguagem natural", out)
+        self.assertIn("Pessoa (uso direto da ferramenta)", out)
 
 
 if __name__ == "__main__":

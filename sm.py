@@ -64,7 +64,7 @@ def cmd_mover(f, a):
     destino, fluxo, feito = a.status, nucleo.fluxo(CFG), nucleo.status_feito(CFG)
     if destino not in fluxo:
         raise SystemExit(f"status inválido. Use: {', '.join(fluxo)}")
-    if destino == feito and not a.evidencia:
+    if destino == feito and not (a.evidencia or "").strip():
         raise SystemExit(f"DoD: '{feito}' exige --evidencia (saída de comando, link, captura, número). "
                          "Critério verificado no artefato, não no relato.")
     cheio = checar_wip(f, i["projeto_id"], destino, a.id)

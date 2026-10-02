@@ -36,5 +36,7 @@
     {"id": 12, "assunto": "Item restrito que nunca pode sair da fonte", "tipo": "Tarefa", "status": "Backlog", "prioridade": "Alta", "projeto_id": "projeto-restrito", "pai_id": null, "sprint": null, "bucket": null, "horas": 2, "inicio": null, "fim": null,
      "descricao": "Dado sensível de exemplo. Se aparecer em qualquer espelho, a regra de escopo falhou."}
   ],
-  "atividades": []
+  "atividades": [
+    {"item": 6, "autor": "Pessoa (uso direto da ferramenta)", "quando": "2026-10-01T10:00:00", "comentario": "Ajuste feito direto na tela.", "mudancas": []}
+  ]
 }

@@ -1,5 +1,6 @@
 """Espelho Trello. O Trello não tem épico, sprint nem estimativa — a tradução é explícita:
-épico → etiqueta (roxa) nos filhos, sem cartão próprio · sprint → etiqueta S1..S6 + data de entrega
+épico → etiqueta (roxa) nos filhos, sem cartão próprio, achada pelo título do épico (exceção à
+identidade por marcador) · sprint → etiqueta S1..Sn + data de entrega
 · horas → sufixo '· Nh' no título · status → lista. Idempotência: marcador op:ID na descrição."""
 import json, os, time, urllib.parse, urllib.request, urllib.error
 
@@ -17,6 +18,7 @@ class Espelho:
         global QUADRO, LISTAS
         self.cfg = cfg
         QUADRO, LISTAS = conf["quadro"], nucleo.fluxo(cfg)
+        self.fuso = conf.get("fuso", "+00:00")
         self.key, self.tok = _env()
 
     def _r(self, metodo, caminho, **p):
@@ -81,7 +83,7 @@ class Espelho:
         desc = (f"Espelho — **fonte da verdade:** [OP#{c['op_id']}]({c['op_url']}). "
                 f"Etapa 1: mudanças feitas aqui não voltam e serão sobrescritas.\n\n{c['descricao'] or ''}\n\nop:{c['op_id']}")
         p = dict(name=nome[:16384], desc=desc[:16384], idList=self.lista[c["status"]], idLabels=",".join(ids),
-                 due=(c["fim"] + "T18:00:00-04:00") if c["fim"] else "", dueComplete="true" if c["status"] == nucleo.status_feito(self.cfg) else "false")
+                 due=(c["fim"] + "T18:00:00" + self.fuso) if c["fim"] else "", dueComplete="true" if c["status"] == nucleo.status_feito(self.cfg) else "false")
         if not ref and self.por_op.get(c["op_id"]):          # já existe no Trello (ex.: resposta perdida) → adota
             ref = {"cartao": self.por_op[c["op_id"]][0]}
         if ref: self._r("PUT", f"/cards/{ref['cartao']}", **p)
