@@ -64,7 +64,7 @@ Trello e GitHub Projects:
 - **Uso:** de 28/09 a 02/10/2026, as 20 mudanças registradas na fonte foram feitas por conversa,
   nenhuma pela tela. A mesma medição registra que não houve progresso da sprint no período.
 
-Antes da publicação, rodadas sucessivas de auditoria independente, 44 testes e 40 defeitos
+Antes da publicação, rodadas sucessivas de auditoria independente, 44 testes e 41 defeitos
 plantados, todos detectados, com cada teste derrubado por pelo menos um deles. Números, custo de
 tradução de cada ferramenta e defeitos encontrados: [RESULTADOS.md](RESULTADOS.md).
 
@@ -89,7 +89,7 @@ python3 espelho.py arquivo                     # segunda execução: nada muda
 python3 sm.py prova                            # quantas mudanças vieram do sistema agêntico
 
 python3 -m unittest discover -s testes -v      # 44 testes
-bash testes/sabotagens.sh                      # 40 defeitos plantados, todos detectados; 1 controle
+bash testes/sabotagens.sh                      # 41 defeitos plantados, todos detectados; 1 controle
 ```
 
 As saídas indicadas valem para um clone novo; para repetir do zero, `rm -rf estado`. A medição
@@ -130,7 +130,7 @@ conteúdo do backlog: está no `.gitignore` e não deve ser versionado.
 do WIP rodam também com uma fonte externa que não herda da local e só expõe a interface pública
 dos adaptadores, para provar que as regras não dependem da implementação. O backlog fictício tem
 um projeto fora do escopo, e o teste de escopo procura no espelho cada campo de texto dos itens
-dele. As sabotagens S5 a S40 vêm das rodadas de auditoria: defeitos que a auditoria plantou e os
+dele. As sabotagens S5 a S41 vêm das rodadas de auditoria: defeitos que a auditoria plantou e os
 testes da época não detectavam, mais sabotagens dirigidas a cada afirmação de comportamento
 deste texto. O script exige que cada trecho sabotado seja único no arquivo, para que uma
 sabotagem não altere uma ocorrência repetida em outro ponto do código e passe sem detecção, e

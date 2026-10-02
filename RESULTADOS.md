@@ -18,7 +18,7 @@ Fonte: OpenProject 17.8 (self-hosted). Espelhos: Jira Cloud, Trello e GitHub Pro
 | Duplicatas (contadas pelo marcador op:ID) | 0 | 0 | 0 |
 | Horas por sprint iguais às da fonte | sim (28/24/27/21/20/16) | sim | sim |
 
-A criação de um projeto no Jira gera, por padrão, uma sprint já ativa e quatro itens de exemplo.
+No experimento, a criação do projeto no Jira gerou uma sprint já ativa e quatro itens de exemplo.
 Sem marcador de origem, esses itens não pertencem à fonte e foram removidos antes da medição.
 
 ## Custo de tradução por ferramenta
@@ -97,8 +97,9 @@ deixados para decisão do proprietário.
 | 5 | `e838c69` | todas as anteriores + dirigidas ao texto novo | 23 de 23 dirigidas, 15 de 15 antigos; 2 afirmações novas sem sabotagem detectada | a fonte externa expunha atributos internos da fonte local; a saída de `sm projetos` e a sprint de `sm criar` não eram verificadas |
 | 6 | `9537c90` | 29 dirigidas das rodadas anteriores + 15 antigos + 3 novas | todas detectadas | nenhum bloqueante ou ressalva; veredito "pode ir a público" |
 | 7 | `1f6486c` | somente texto (README reescrito) | — | a afirmação "cada teste é provado por uma sabotagem" não se sustentava: 4 testes nunca falhavam; o script passou a verificar a cobertura e recebeu as sabotagens S37 a S40 |
+| 8 | `26e9859` | textos revisados + verificação de cobertura | — | a cópia de referência era verificada só após a primeira carga, e não após atualizações; nova asserção e sabotagem S41 |
 
-Cada defeito não detectado e cada brecha resultaram num teste e numa sabotagem (S5 a S40), e os
+Cada defeito não detectado e cada brecha resultaram num teste e numa sabotagem (S5 a S41), e os
 textos passaram a afirmar apenas o que o código sustenta. O próprio script de sabotagem continha
 um alvo ambíguo: um trecho repetido no arquivo era alterado numa ocorrência diferente da
 pretendida, e a sabotagem passava sem detecção; o script passou a exigir trechos únicos.

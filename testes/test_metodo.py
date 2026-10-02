@@ -173,6 +173,9 @@ class Espelhamento(Base):
         self.sm("mover", "3", "Em execução")
         self.assertIn("0 criados, 1 atualizados", self.espelho("arquivo").stdout)
         self.assertEqual(self.cartao_de(3)["coluna"], "Em execução")
+        with open(os.path.join(self.tmp, "estado", "arquivo.json"), encoding="utf-8") as f:
+            snap = json.load(f)["3"]["snap"]                           # a cópia de referência acompanha
+        self.assertEqual(snap["status"], "Em execução")
 
     def test_item_concluido_continua_espelhado(self):
         self.espelho("arquivo")

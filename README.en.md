@@ -53,7 +53,7 @@ Projects:
   through conversation, none through the tool's screen. The same measurement records no sprint
   progress in that period.
 
-Before publication: successive rounds of independent audit, 44 tests and 40 planted defects, all
+Before publication: successive rounds of independent audit, 44 tests and 41 planted defects, all
 caught, with every test broken by at least one of them. Figures, each tool's translation cost
 and the failures found: [RESULTADOS.md](RESULTADOS.md).
 
@@ -69,7 +69,7 @@ Python 3 (tested on 3.13), no dependencies, no network, no accounts:
 
 ```bash
 python3 -m unittest discover -s testes -v      # 44 tests
-bash testes/sabotagens.sh                      # 40 planted defects, all detected; 1 control
+bash testes/sabotagens.sh                      # 41 planted defects, all detected; 1 control
 ```
 
 The usage measurement in RESULTADOS.md was taken on data that is not published. The `sm prova`

@@ -114,6 +114,9 @@ sabotar "S39 status fora do vocabulário aceito" FALHA \
   "$(troca sm.py "[('    if destino not in fluxo:', '    if False:')]")"
 sabotar "S40 fonte configurada é trocada pela local" FALHA \
   "$(troca nucleo.py "[('return _modulo(cfg[\"fonte\"][\"adaptador\"]).Fonte(cfg)', 'return _modulo(\"arquivo\").Fonte(cfg)')]")"
+# Oitava rodada da auditoria: a cópia de referência precisa acompanhar cada atualização.
+sabotar "S41 cópia de referência não é atualizada após mudança" FALHA \
+  "$(troca espelho.py "[('est[str(c[\"op_id\"])] = {\"ref\": ref, \"hash\": h, \"snap\": c}', 'est[str(c[\"op_id\"])] = {\"ref\": ref, \"hash\": h, \"snap\": reg[\"snap\"] if reg else c}')]")"
 sabotar "C0 controle: nenhuma mudança de comportamento" PASSA \
   "$(troca sm.py "[('# noqa: E402', '# noqa: E402 ')]")"
 
