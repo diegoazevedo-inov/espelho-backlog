@@ -2,17 +2,23 @@
 
 [English summary](README.en.md)
 
-Um processo de trabalho que atravessa ferramentas diferentes sem mudar de regra. O processo é
-código, fora de qualquer ferramenta; uma ferramenta guarda a fonte da verdade, e as outras
-recebem o reflexo dela. O método é operado por sistemas agênticos em linguagem natural: quem
-trabalha conversa, o sistema executa as regras, e os quadros servem para quem precisa ver.
+O processo de trabalho como código, fora de qualquer ferramenta: a ferramenta volta a ser meio.
+Uma delas guarda a fonte da verdade, e as outras recebem o reflexo dela, cada uma servindo de
+vitrine a um público. O método é operado por sistemas agênticos em linguagem natural: quem
+trabalha conversa, o sistema aplica as regras, e os quadros servem para quem precisa acompanhar.
 
 ## O problema
 
-Equipes diferentes usam ferramentas diferentes. Quando o processo mora dentro de uma delas, ele
-não atravessa as outras: cada quadro vira uma versão própria das regras, e a Definition of Done
-de um não vale no outro. Nenhuma das ferramentas testadas, na configuração padrão, impede que um
-item seja concluído sem evidência ou que uma coluna passe do limite de WIP.
+A ferramenta de gestão tende a deixar de ser meio e passar a ser fim. O processo vira o que a
+ferramenta permite configurar, o trabalho inclui manter o quadro em dia, e trocar de ferramenta
+significa refazer o processo. As regras do método (Definition of Ready, Definition of Done,
+limite de WIP, capacidade) passam a depender de como cada ferramenta foi configurada. Nenhuma
+das ferramentas testadas, na configuração padrão, impede que um item seja concluído sem
+evidência ou que uma coluna passe do limite de WIP.
+
+Os públicos, por outro lado, são vários: níveis diferentes dentro da equipe e, principalmente,
+clientes, cada um com a sua forma de acompanhar o trabalho. O quadro deveria ser a vitrine de
+cada público, e não o lugar onde o processo mora.
 
 ## Princípios
 

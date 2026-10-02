@@ -1,18 +1,24 @@
 # Espelho Backlog
 
-A work process that crosses different tools without changing its rules. The process is code,
-outside any tool; one tool holds the source of truth, and the others receive its reflection. The
-method is operated by agentic systems through natural language: whoever works talks, the system
-enforces the rules, and the boards are for whoever needs to see.
+The work process as code, outside any tool: the tool goes back to being a means. One of them
+holds the source of truth, and the others receive its reflection, each serving as a showcase for
+an audience. The method is operated by agentic systems through natural language: whoever works
+talks, the system applies the rules, and the boards are for whoever needs to follow the work.
 
 The documentation is in Portuguese. This page is a summary.
 
 ## The problem
 
-Teams use different tools. When the process lives inside one of them, it does not cross over to
-the others: each board becomes its own version of the rules, and one board's Definition of Done
-does not hold on another. None of the tools tested, in their default configuration, prevents an
-item from being closed without evidence or a column from exceeding its WIP limit.
+A management tool tends to stop being a means and become an end. The process becomes whatever
+the tool can be configured to do, the work includes keeping the board up to date, and changing
+tools means rebuilding the process. The method's rules (Definition of Ready, Definition of Done,
+WIP limit, capacity) come to depend on how each tool was configured. None of the tools tested,
+in their default configuration, prevents an item from being closed without evidence or a column
+from exceeding its WIP limit.
+
+Audiences, on the other hand, are many: different levels within the team and, above all,
+clients, each with its own way of following the work. The board should be each audience's
+showcase, not the place where the process lives.
 
 ## Principles
 
