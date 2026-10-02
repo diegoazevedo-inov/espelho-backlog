@@ -60,7 +60,8 @@ class Espelho:
                   if prefixo and s["name"].startswith(prefixo)]
         self.sprint_id = {}
         for nome, ini, fim in todas:
-            datas = {"startDate": f"{ini}T09:00:00.000{FUSO}", "endDate": f"{fim}T18:00:00.000{FUSO}"}
+            h_ini, h_fim = self.conf.get("hora_inicio_sprint", "09:00:00"), self.conf.get("hora_fim_sprint", "18:00:00")
+            datas = {"startDate": f"{ini}T{h_ini}.000{FUSO}", "endDate": f"{fim}T{h_fim}.000{FUSO}"}
             if nome in porn: sid = porn[nome]["id"]
             elif livres:                                   # reaproveita as sprints que o assistente do Jira criou
                 sid = livres.pop(0)["id"]

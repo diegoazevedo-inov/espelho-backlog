@@ -193,14 +193,35 @@ class Espelhamento(Base):
     def test_identidade_nunca_pelo_titulo(self):
         """Dois itens com o mesmo título e o estado local perdido: cada um mantém o seu cartão."""
         self.espelho("arquivo")
-        self.sm("criar", "Exportar relatório mensal em CSV", "--sprint", "S2", "--horas", "2")   # mesmo título do #6
+        self.sm("criar", "Exportar relatório mensal em CSV", "--sprint", "S2", "--horas", "4")   # mesmo título exibido do #6
         os.remove(os.path.join(self.tmp, "estado", "arquivo.json"))
         out = self.espelho("arquivo").stdout
         self.assertIn("1 criados", out)
         self.assertIn("11 adotados pelo marcador", out)
+        self.assertEqual(self.cartao_de(6)["titulo"], self.cartao_de(13)["titulo"])   # títulos idênticos
         self.assertEqual(self.cartoes()[6], 1)
         self.assertEqual(self.cartoes()[13], 1)
         self.assertEqual(sum(self.cartoes().values()), 12)
+
+    def test_espelho_externo_por_nome_com_ponto(self):
+        pacote = os.path.join(self.tmp, "espelho_externo")
+        os.makedirs(pacote)
+        open(os.path.join(pacote, "__init__.py"), "w").close()
+        with open(os.path.join(pacote, "espelho.py"), "w", encoding="utf-8") as f:
+            f.write("from adaptadores import arquivo_espelho as _local\n\n"
+                    "class Espelho:\n"
+                    "    def __init__(self, cfg, conf):\n        self._e = _local.Espelho(cfg, conf)\n"
+                    "    def __getattr__(self, n):\n        return getattr(self._e, n)\n")
+        caminho = os.path.join(self.tmp, "config.exemplo.json")
+        with open(caminho, encoding="utf-8") as f:
+            cfg = json.load(f)
+        cfg["espelhos"]["externo"] = {"adaptador": "espelho_externo.espelho", "arquivo": "estado/espelho-externo.json"}
+        with open(caminho, "w", encoding="utf-8") as f:
+            json.dump(cfg, f, ensure_ascii=False)
+        r = self.espelho("externo", extra_env={"PYTHONPATH": self.tmp + os.pathsep + self.env.get("PYTHONPATH", "")})
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("11 criados", r.stdout)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp, "estado", "espelho-externo.json")))
 
     def test_nada_volta_do_espelho_para_a_fonte(self):
         self.sm("projetos")                                            # cria a fonte de trabalho
@@ -261,6 +282,20 @@ class Espelhamento(Base):
                     self.assertNotIn(valor, espelhado, f"campo '{campo}' do item {i['id']} vazou")
 
 
+class Consultas(Base):
+    def test_itens_lista_os_itens_do_projeto(self):
+        out = self.sm("itens", "-p", "produto-exemplo").stdout
+        self.assertEqual(sum(1 for l in out.splitlines() if l.startswith("#")), 11)
+        self.assertIn("— 11 itens", out)
+        self.assertNotIn("nunca pode sair da fonte", out)
+
+    def test_wip_mostra_a_ocupacao(self):
+        self.sm("mover", "3", "Em execução")
+        out = self.sm("wip").stdout
+        self.assertIn("produto-exemplo: Em execução 1/2", out)
+        self.assertIn("produto-exemplo: Em auditoria 0/2", out)
+
+
 class Medicao(Base):
     def test_prova_distingue_autores(self):
         """O backlog fictício traz 1 mudança feita direto na ferramenta, por outro autor."""
@@ -288,18 +323,26 @@ class OutraFonte(TravasDoMetodo):
         os.makedirs(pacote)
         open(os.path.join(pacote, "__init__.py"), "w").close()
         with open(os.path.join(pacote, "fonte.py"), "w", encoding="utf-8") as f:
-            f.write("from adaptadores.arquivo import Fonte as _Base\n\n"
-                    "class Fonte(_Base):\n    nome = 'outra-ferramenta'\n")
+            f.write("from adaptadores import arquivo as _local\n\n"
+                    "class Fonte:\n"
+                    "    \"\"\"Não herda da fonte local: compõe e delega.\"\"\"\n"
+                    "    nome = 'outra-ferramenta'\n"
+                    "    def __init__(self, cfg):\n        self._f = _local.Fonte(cfg)\n        self.url = 'outra://fonte'\n"
+                    "    def __getattr__(self, n):\n        return getattr(self._f, n)\n")
         caminho = os.path.join(self.tmp, "config.exemplo.json")
         with open(caminho, encoding="utf-8") as f:
             cfg = json.load(f)
         cfg["fonte"]["adaptador"] = "fonte_externa.fonte"
         with open(caminho, "w", encoding="utf-8") as f:
             json.dump(cfg, f, ensure_ascii=False)
-        self.env["PYTHONPATH"] = self.tmp
+        self.env["PYTHONPATH"] = self.tmp + os.pathsep + self.env.get("PYTHONPATH", "")
 
     def test_a_fonte_e_mesmo_outra(self):
         self.assertIn("fonte: outra-ferramenta", self.sm("prova").stdout)
+        r = subprocess.run([sys.executable, "-c",
+                            "import adaptadores.arquivo as a, fonte_externa.fonte as e; print(issubclass(e.Fonte, a.Fonte))"],
+                           capture_output=True, text=True, env=dict(self.env, PYTHONPATH=self.tmp + os.pathsep + RAIZ))
+        self.assertEqual(r.stdout.strip(), "False", r.stderr)                 # implementação independente
 
 
 class Configuracao(unittest.TestCase):
@@ -326,7 +369,8 @@ class Configuracao(unittest.TestCase):
         try:
             with open(os.path.join(tmp, "ferramenta.env"), "w", encoding="utf-8") as f:
                 f.write("# comentário\nCHAVE=valor-de-teste\n")
-            env = dict(os.environ, ESPELHO_CREDENCIAIS=tmp, PYTHONPATH=RAIZ, PYTHONDONTWRITEBYTECODE="1")
+            env = dict(os.environ, ESPELHO_CREDENCIAIS=tmp, PYTHONDONTWRITEBYTECODE="1",
+                       PYTHONPATH=RAIZ + os.pathsep + os.environ.get("PYTHONPATH", ""))
             r = subprocess.run([sys.executable, "-c", "import nucleo; print(nucleo.credenciais('ferramenta')['CHAVE'])"],
                                capture_output=True, text=True, env=env, cwd=tmp)
             self.assertEqual(r.stdout.strip(), "valor-de-teste", r.stderr)

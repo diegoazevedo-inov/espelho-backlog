@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Um teste só merece confiança depois de ver um defeito plantado dar vermelho.
 # Cada sabotagem reproduz uma falha real (ou um risco real) do experimento, numa cópia
-# temporária. Esperado: todas as sabotagens (S1–S26) FALHAM e o controle PASSA.
+# temporária. Esperado: todas as sabotagens (S1–S32) FALHAM e o controle PASSA.
 #
 #     bash testes/sabotagens.sh
 set -u
@@ -79,6 +79,19 @@ sabotar "S25 config.json local ignorado" FALHA \
   "$(troca nucleo.py "[('caminho = local if os.path.exists(local) else os.path.join(BASE, \"config.exemplo.json\")', 'caminho = os.path.join(BASE, \"config.exemplo.json\")')]")"
 sabotar "S26 ESPELHO_CREDENCIAIS ignorada" FALHA \
   "$(troca nucleo.py "[('os.path.expanduser(os.environ.get(\"ESPELHO_CREDENCIAIS\", \"~/.config/espelho-backlog\"))', 'os.path.expanduser(\"~/.config/espelho-backlog\")')]")"
+# Sabotagens dirigidas da quarta rodada da auditoria:
+sabotar "S27 identidade pelo título exibido do cartão" FALHA \
+  "$(troca adaptadores/arquivo_espelho.py "[('if not ref and self.por_op.get(c[\"op_id\"]):', 'if not ref and any(v[\"titulo\"] == cartao[\"titulo\"] for v in d[\"cartoes\"].values()):'), ('ref, adotado = {\"cartao\": self.por_op[c[\"op_id\"]][0]}, True', 'ref, adotado = {\"cartao\": next(k for k, v in d[\"cartoes\"].items() if v[\"titulo\"] == cartao[\"titulo\"])}, True')]")"
+sabotar "S28 DoD só vale para a implementação local da fonte" FALHA \
+  "$(troca sm.py "[('    if destino == feito and not (a.evidencia or \"\").strip():', '    if isinstance(f, __import__(\"adaptadores.arquivo\", fromlist=[\"Fonte\"]).Fonte) and destino == feito and not (a.evidencia or \"\").strip():')]")"
+sabotar "S29 WIP só vale para a implementação local da fonte" FALHA \
+  "$(troca sm.py "[('lim = M.get(\"wip\", {}).get(projeto, {}).get(status)', 'lim = M.get(\"wip\", {}).get(projeto, {}).get(status) if isinstance(f, __import__(\"adaptadores.arquivo\", fromlist=[\"Fonte\"]).Fonte) else None')]")"
+sabotar "S30 espelho externo por nome com ponto ignorado" FALHA \
+  "$(troca nucleo.py "[('return _modulo(conf[\"adaptador\"]).Espelho(cfg, conf)', 'return importlib.import_module(\"adaptadores.\" + conf[\"adaptador\"]).Espelho(cfg, conf)')]")"
+sabotar "S31 sm wip não conta a ocupação" FALHA \
+  "$(troca sm.py "[('n = len([i for i in f.itens(proj, [st]) if i[\"tipo\"] != \"Épico\"])', 'n = 0')]")"
+sabotar "S32 sm itens não lista nada" FALHA \
+  "$(troca sm.py "[('for i in its: print(linha(i))', 'for i in []: print(linha(i))')]")"
 sabotar "C0 controle: nenhuma mudança de comportamento" PASSA \
   "$(troca sm.py "[('# noqa: E402', '# noqa: E402 ')]")"
 

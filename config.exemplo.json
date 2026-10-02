@@ -23,7 +23,8 @@
              "tipos": {"Épico": "10001", "Tarefa": "10003", "Marco": "10003"},
              "reaproveitar_sprints_com_prefixo": null,
              "prioridades": {"Alta": "2", "Normal": "3", "Baixa": "4", "Imediata": "1"},
+             "hora_inicio_sprint": "09:00:00", "hora_fim_sprint": "18:00:00",
              "campo_pontos": "customfield_10016", "campo_sprint": "customfield_10020", "campo_inicio": "customfield_10015"},
-    "trello": {"adaptador": "trello", "quadro": "Backlog — espelho", "fuso": "-03:00"}
+    "trello": {"adaptador": "trello", "quadro": "Backlog — espelho", "fuso": "-03:00", "hora_entrega": "18:00:00"}
   }
 }

@@ -82,7 +82,7 @@ Os 11 itens pendentes são mudanças reais feitas na fonte depois de 24/09, aind
 ## Auditoria independente (02/10/2026)
 
 Antes da publicação, o repositório foi auditado por uma sessão separada, sem acesso ao backlog
-real, em três rodadas. Em todas, histórico, segredos, dados reais e reprodutibilidade foram
+real, em quatro rodadas. Em todas, histórico, segredos, dados reais e reprodutibilidade foram
 aprovados; o que variou foi a confiança nos testes.
 Autor e fuso dos commits foram deixados para decisão do dono.
 
@@ -91,8 +91,9 @@ Autor e fuso dos commits foram deixados para decisão do dono.
 | 1 | `5f9bffc` | 8 | 2 | 4 afirmações além do código; brecha na DoD (evidência só com espaços) |
 | 2 | `9f1ebbd` | os 8 anteriores + 6 novos | 8 dos antigos, 0 dos novos | contagem de "criados" incluía cartões adotados pelo marcador; um texto absoluto demais sobre IDs no código |
 | 3 | `23c6416` | os 15 anteriores + 16 sabotagens dirigidas, uma por afirmação dos textos | 15 dos antigos, 8 das dirigidas | veredito "não pode ir a público": o teste da DoD aceitava o item concluído sem evidência, porque procurava uma palavra que também aparecia no histórico |
+| 4 | `25cd503` | os 15 anteriores + 16 dirigidas da rodada 3 + dirigidas ao texto novo | 15 dos antigos, 15 das 16 da rodada 3; 3 afirmações novas sem sabotagem pega | a "fonte externa" herdava da local; o título repetido tinha horas diferentes; o espelho externo não era testado |
 
-Cada defeito que escapou e cada brecha virou um teste e uma sabotagem (S5 a S26), e os textos
+Cada defeito que escapou e cada brecha virou um teste e uma sabotagem (S5 a S32), e os textos
 passaram a dizer só o que o código sustenta. O próprio script de sabotagem tinha um alvo errado
 (um trecho repetido no arquivo, sabotado no lugar errado); passou a exigir trechos únicos.
 

@@ -19,6 +19,7 @@ class Espelho:
         self.cfg = cfg
         QUADRO, LISTAS = conf["quadro"], nucleo.fluxo(cfg)
         self.fuso = conf.get("fuso", "+00:00")
+        self.hora_entrega = conf.get("hora_entrega", "18:00:00")
         self.key, self.tok = _env()
 
     def _r(self, metodo, caminho, **p):
@@ -83,7 +84,7 @@ class Espelho:
         desc = (f"Espelho — **fonte da verdade:** [OP#{c['op_id']}]({c['op_url']}). "
                 f"Etapa 1: mudanças feitas aqui não voltam e serão sobrescritas.\n\n{c['descricao'] or ''}\n\nop:{c['op_id']}")
         p = dict(name=nome[:16384], desc=desc[:16384], idList=self.lista[c["status"]], idLabels=",".join(ids),
-                 due=(c["fim"] + "T18:00:00" + self.fuso) if c["fim"] else "", dueComplete="true" if c["status"] == nucleo.status_feito(self.cfg) else "false")
+                 due=(c["fim"] + "T" + self.hora_entrega + self.fuso) if c["fim"] else "", dueComplete="true" if c["status"] == nucleo.status_feito(self.cfg) else "false")
         adotado = False
         if not ref and self.por_op.get(c["op_id"]):          # já existe no Trello (ex.: resposta perdida) → adota
             ref, adotado = {"cartao": self.por_op[c["op_id"]][0]}, True
