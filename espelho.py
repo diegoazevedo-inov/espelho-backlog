@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""espelho — a fonte da verdade refletida em outras ferramentas (etapa 1: só a ida).
+"""espelho — a fonte da verdade refletida em outras ferramentas, em mão única.
 
 Idempotente: cada cartão carrega o ID da fonte (marcador op:ID) e é atualizado por esse ID,
 nunca por título. O estado de cada espelho (estado/<espelho>.json) guarda a referência e uma
-cópia de referência do item ('snap'), base da etapa 2 (a volta), que precisa saber QUAL lado mudou.
+cópia de referência do item ('snap'), base para um caminho de volta, que precisa saber QUAL lado mudou.
 Escopo: só os projetos listados em "escopo_espelho" saem da fonte.
 """
 import argparse

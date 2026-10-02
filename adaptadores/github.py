@@ -60,7 +60,7 @@ class Espelho:
         me = self._gql("{viewer{id login}}")["viewer"]; self.login = me["login"]
         repo = self._rest("GET", f"/repos/{self.login}/{REPO}", ok404=True) or self._rest("POST", "/user/repos", {
             "name": REPO, "private": True, "has_issues": True, "auto_init": True,
-            "description": "Espelho do backlog (etapa 1: somente ida). A fonte da verdade é outra ferramenta."})
+            "description": "Espelho do backlog, de mão única. A fonte da verdade é outra ferramenta."})
         if not repo.get("private"): raise SystemExit("ABORTADO: o repositório não é privado")
         for n, cor in ROTULOS.items(): self._rest("POST", f"/repos/{self.login}/{REPO}/labels", {"name": n, "color": cor}, ok404=True)
         projs = self._gql("{viewer{projectsV2(first:50){nodes{id number title}}}}")["viewer"]["projectsV2"]["nodes"]
@@ -127,7 +127,7 @@ class Espelho:
         titulo = ("[Épico] " if c["tipo"] == "Épico" else "[Marco] " if c["tipo"] == "Marco" else "") + c["assunto"]
         datas = f"\n\n**Datas:** {c['inicio'] or '—'} → {c['fim'] or '—'}" if c["tipo"] == "Marco" else ""
         corpo = (f"> Espelho — **fonte da verdade:** [OP#{c['op_id']}]({c['op_url']}). "
-                 f"Etapa 1: mudanças feitas aqui **não voltam** e serão sobrescritas.\n\n{c['descricao'] or ''}{datas}\n\n<!-- op:{c['op_id']} -->")
+                 f"Mão única: mudanças feitas aqui **não voltam** e serão sobrescritas.\n\n{c['descricao'] or ''}{datas}\n\n<!-- op:{c['op_id']} -->")
         rot = ["tipo:" + c["tipo"].lower(), "projeto:" + c["projeto_id"]]
         for r in rot[1:]:
             if r not in ROTULOS:

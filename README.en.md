@@ -21,14 +21,15 @@ back from a mirror to the source.
 
 **Identity lives in the item itself.** Every mirrored card carries its origin ID. An item is
 never recognized by its title, and nothing duplicates, even when the network fails during a
-sync.
+sync. Single exception: Trello has no epics, so an epic becomes a label found by its name.
 
 **The rules are code, not habit.** An item without evidence cannot reach the final status; a
 column at its WIP limit refuses the next item; a sprint above capacity shows the excess. The
 rules hold for any tool, because they depend on none.
 
 **A planted defect before trust.** Every rule has a test, and every test is proven by a
-sabotage: the defect is planted on purpose, and the test must fail.
+sabotage: the defect is planted on purpose, and the test must fail. The sabotage script itself
+checks that no test is left unbroken by at least one of them.
 
 ## Lineage
 
@@ -44,16 +45,17 @@ at the moment of the change, not remembered later, at review.
 A backlog of 71 items across six sprints, mirrored from OpenProject into Jira, Trello and
 GitHub Projects:
 
-- **Fidelity:** all 71 items in the three mirrors, with hours per sprint matching the source.
+- **Fidelity:** all 71 items in the three mirrors (in Trello, the 11 epics as labels), with
+  hours per sprint matching the source.
 - **Idempotency:** a second run changed nothing in any of the three.
 - **Duplicates:** zero.
 - **Usage:** from 2026-09-28 to 2026-10-02, all 20 changes recorded in the source were made
   through conversation, none through the tool's screen. The same measurement records that the
   sprint did not move in that period.
 
-Before publication: six rounds of independent audit, 44 tests and 36 planted defects, all
-caught. Figures, each tool's translation cost and the failures found:
-[RESULTADOS.md](RESULTADOS.md).
+Before publication: successive rounds of independent audit, 44 tests and 40 planted defects,
+all caught, with every test broken by at least one of them. Figures, each tool's translation
+cost and the failures found: [RESULTADOS.md](RESULTADOS.md).
 
 ## Current limitation
 
@@ -65,7 +67,7 @@ Python 3 (tested on 3.13), no dependencies, no network, no accounts:
 
 ```bash
 python3 -m unittest discover -s testes -v      # 44 tests
-bash testes/sabotagens.sh                      # 36 planted defects, all caught; 1 control
+bash testes/sabotagens.sh                      # 40 planted defects, all caught; 1 control
 ```
 
 The usage measurement in RESULTADOS.md was taken on data that is not published. The `sm prova`

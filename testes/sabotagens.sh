@@ -1,19 +1,23 @@
 #!/usr/bin/env bash
 # Um teste só merece confiança depois de ver um defeito plantado dar vermelho.
 # Cada sabotagem reproduz uma falha real (ou um risco real) do experimento, numa cópia
-# temporária. Esperado: todas as sabotagens (S1–S36) FALHAM e o controle PASSA.
+# temporária. Esperado: todas as sabotagens FALHAM, o controle PASSA, e todo teste da suíte é
+# derrubado por pelo menos uma sabotagem (um teste que nenhuma sabotagem derruba não está provado).
 #
 #     bash testes/sabotagens.sh
 set -u
 RAIZ="$(cd "$(dirname "$0")/.." && pwd)"
 falhas_esperadas=0
+DERRUBADOS="$(mktemp)"
 
 sabotar() {  # $1 descrição · $2 esperado (FALHA|PASSA) · $3 script python que altera a cópia
   local T; T="$(mktemp -d)"; cp -r "$RAIZ/." "$T/"; rm -rf "$T/estado"
   if ! (cd "$T" && python3 -c "$3"); then
     printf 'ERRO %-62s a sabotagem não pôde ser aplicada (trecho mudou?)\n' "$1"; falhas_esperadas=1; rm -rf "$T"; return
   fi
-  local saida; saida="$(cd "$T" && PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s testes 2>&1 | tail -1)"
+  local completo; completo="$(cd "$T" && PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s testes 2>&1)"
+  local saida; saida="$(printf '%s\n' "$completo" | tail -1)"
+  [[ "$2" == FALHA ]] && printf '%s\n' "$completo" | sed -nE 's/^(FAIL|ERROR): [^ ]+ \(([^)]+)\).*/\2/p' >> "$DERRUBADOS"
   local obtido="PASSA"; [[ "$saida" == FAILED* ]] && obtido="FALHA"
   local ok="ok"; [[ "$obtido" != "$2" ]] && { ok="ERRO"; falhas_esperadas=1; }
   printf '%-4s %-62s esperado %-5s obtido %-5s (%s)\n' "$ok" "$1" "$2" "$obtido" "$saida"
@@ -101,7 +105,35 @@ sabotar "S35 sm projetos não lista nada" FALHA \
   "$(troca sm.py "[('    for p in f.projetos():', '    for p in []:')]")"
 sabotar "S36 sm criar ignora --sprint" FALHA \
   "$(troca adaptadores/arquivo.py "[('\"sprint\": sprint, \"bucket\": None,', '\"sprint\": None, \"bucket\": None,')]")"
+# Sabotagens que faltavam para que todo teste seja provado (sétima rodada da auditoria):
+sabotar "S37 excesso de capacidade só aparece acima de cap+5" FALHA \
+  "$(troca sm.py "[('if cap and total > cap else \"\"', 'if cap and total > cap + 5 else \"\"')]")"
+sabotar "S38 evidência da DoD não é registrada no item" FALHA \
+  "$(troca sm.py "[('    if a.evidencia: nota.append(f\"Evidência (DoD): {a.evidencia}\")', '    if False: nota.append(f\"Evidência (DoD): {a.evidencia}\")')]")"
+sabotar "S39 status fora do vocabulário aceito" FALHA \
+  "$(troca sm.py "[('    if destino not in fluxo:', '    if False:')]")"
+sabotar "S40 fonte configurada é trocada pela local" FALHA \
+  "$(troca nucleo.py "[('return _modulo(cfg[\"fonte\"][\"adaptador\"]).Fonte(cfg)', 'return _modulo(\"arquivo\").Fonte(cfg)')]")"
 sabotar "C0 controle: nenhuma mudança de comportamento" PASSA \
   "$(troca sm.py "[('# noqa: E402', '# noqa: E402 ')]")"
+
+# Cobertura: todo teste precisa ter sido derrubado por pelo menos uma sabotagem.
+todos="$(cd "$RAIZ" && PYTHONDONTWRITEBYTECODE=1 python3 -c '
+import unittest
+def ids(s):
+    for t in s:
+        if isinstance(t, unittest.TestSuite): yield from ids(t)
+        else: yield t.id()
+print("\n".join(sorted(ids(unittest.defaultTestLoader.discover("testes")))))')"
+nunca="$(comm -23 <(printf '%s\n' "$todos" | sort -u) <(sort -u "$DERRUBADOS"))"
+total="$(printf '%s\n' "$todos" | grep -c .)"
+if [[ -n "$nunca" ]]; then
+  printf 'ERRO cobertura: %s de %s testes nunca derrubados por sabotagem:\n%s\n' \
+    "$(printf '%s\n' "$nunca" | grep -c .)" "$total" "$nunca"
+  falhas_esperadas=1
+else
+  printf 'ok   cobertura: todos os %s testes são derrubados por pelo menos uma sabotagem\n' "$total"
+fi
+rm -f "$DERRUBADOS"
 
 exit $falhas_esperadas

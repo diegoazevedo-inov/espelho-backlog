@@ -64,7 +64,7 @@ A medição prova que o método foi operado só por conversa; não prova que a s
 ## Auditoria independente (02/10/2026)
 
 Antes da publicação, o repositório foi auditado por uma sessão separada, sem acesso ao backlog
-real, em seis rodadas. Em todas, histórico, segredos, dados reais e reprodutibilidade foram
+real, em rodadas sucessivas. Em todas, histórico, segredos, dados reais e reprodutibilidade foram
 aprovados; o que variou foi a confiança nos testes.
 Autor e fuso dos commits foram deixados para decisão do dono.
 
@@ -76,8 +76,9 @@ Autor e fuso dos commits foram deixados para decisão do dono.
 | 4 | `25cd503` | os 15 anteriores + 16 dirigidas da rodada 3 + dirigidas ao texto novo | 15 dos antigos, 15 das 16 da rodada 3; 3 afirmações novas sem sabotagem pega | a "fonte externa" herdava da local; o título repetido tinha horas diferentes; o espelho externo não era testado |
 | 5 | `e838c69` | todas as anteriores + dirigidas ao texto novo | 23 de 23 dirigidas, 15 de 15 antigos; 2 afirmações novas sem sabotagem pega | a fonte externa repassava até os atributos internos da local; a saída de `sm projetos` e a sprint de `sm criar` não eram conferidas |
 | 6 | `9537c90` | 29 dirigidas das rodadas anteriores + 15 antigos + 3 novas | todas pegas | nenhum bloqueante ou ressalva; veredito "pode ir a público" |
+| 7 | `1f6486c` | só texto (README reescrito) | — | a frase "cada teste é provado por uma sabotagem" não valia: 4 testes nunca eram derrubados; o script passou a conferir a cobertura e ganhou as sabotagens S37 a S40 |
 
-Cada defeito que escapou e cada brecha virou um teste e uma sabotagem (S5 a S36), e os textos
+Cada defeito que escapou e cada brecha virou um teste e uma sabotagem (S5 a S40), e os textos
 passaram a dizer só o que o código sustenta. O próprio script de sabotagem tinha um alvo errado
 (um trecho repetido no arquivo, sabotado no lugar errado); passou a exigir trechos únicos.
 

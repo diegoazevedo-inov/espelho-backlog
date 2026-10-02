@@ -24,7 +24,7 @@ def adf(texto, link):
     blocos = [b.strip() for b in (texto or "").split("\n\n") if b.strip()]
     ps = [{"type": "paragraph", "content": [{"type": "text", "text": "Espelho — fonte da verdade: "},
                                             {"type": "text", "text": link, "marks": [{"type": "link", "attrs": {"href": link}}]},
-                                            {"type": "text", "text": ". Etapa 1: mudanças feitas aqui não voltam e serão sobrescritas."}]}]
+                                            {"type": "text", "text": ". Mão única: mudanças feitas aqui não voltam e serão sobrescritas."}]}]
     ps += [{"type": "paragraph", "content": [{"type": "text", "text": b.replace("**", "")}]} for b in blocos]
     return {"type": "doc", "version": 1, "content": ps}
 

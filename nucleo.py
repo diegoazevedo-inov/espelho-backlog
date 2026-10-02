@@ -62,7 +62,7 @@ def fonte(cfg):
 
 
 def espelho(cfg, nome):
-    """Um espelho: só recebe. Na etapa 1, nada volta dele para a fonte."""
+    """Um espelho: só recebe. Nada volta dele para a fonte."""
     conf = cfg["espelhos"][nome]
     return _modulo(conf["adaptador"]).Espelho(cfg, conf)
 

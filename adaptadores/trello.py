@@ -44,7 +44,7 @@ class Espelho:
         b = next((q for q in quadros if q["name"] == QUADRO and not q["closed"]), None) or self._r(
             "POST", "/boards/", name=QUADRO, defaultLists="false", defaultLabels="false", idOrganization=orgs[0]["id"],
             prefs_permissionLevel="private",
-            desc="Espelho do backlog (etapa 1: somente ida). A fonte da verdade é outra ferramenta.")
+            desc="Espelho do backlog, de mão única. A fonte da verdade é outra ferramenta.")
         self.board = b["id"]; meta["quadro"] = b["id"]
         existentes = {l["name"]: l["id"] for l in self._r("GET", f"/boards/{self.board}/lists", filter="open")}
         self.lista = {}
@@ -82,7 +82,7 @@ class Espelho:
         ids.append(self._rotulo(c["projeto_id"], "sky"))
         nome = c["assunto"] + (f" · {c['horas']:g}h" if c["horas"] else "")
         desc = (f"Espelho — **fonte da verdade:** [OP#{c['op_id']}]({c['op_url']}). "
-                f"Etapa 1: mudanças feitas aqui não voltam e serão sobrescritas.\n\n{c['descricao'] or ''}\n\nop:{c['op_id']}")
+                f"Mão única: mudanças feitas aqui não voltam e serão sobrescritas.\n\n{c['descricao'] or ''}\n\nop:{c['op_id']}")
         p = dict(name=nome[:16384], desc=desc[:16384], idList=self.lista[c["status"]], idLabels=",".join(ids),
                  due=(c["fim"] + "T" + self.hora_entrega + self.fuso) if c["fim"] else "", dueComplete="true" if c["status"] == nucleo.status_feito(self.cfg) else "false")
         adotado = False

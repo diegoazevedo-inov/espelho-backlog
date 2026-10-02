@@ -22,14 +22,16 @@ volta de um espelho para a fonte.
 
 **A identidade está no próprio item.** Cada cartão espelhado carrega o ID de origem. Um
 item nunca é reconhecido pelo título, e nada duplica, mesmo quando a rede cai no meio da
-sincronização.
+sincronização. Única exceção: no Trello, que não tem épico, o épico vira uma etiqueta achada
+pelo nome (ver Detalhes).
 
 **As regras são código, não costume.** Item sem evidência não chega ao status final; coluna
 com WIP cheio recusa o próximo item; sprint acima da capacidade mostra o excesso. As regras
 valem para qualquer ferramenta, porque não dependem de nenhuma.
 
 **Defeito plantado antes de confiar.** Cada regra tem um teste, e cada teste é provado por
-uma sabotagem: o defeito é plantado de propósito, e o teste precisa reprovar.
+uma sabotagem: o defeito é plantado de propósito, e o teste precisa reprovar. O próprio
+script de sabotagens confere que nenhum teste fica sem ser derrubado por alguma delas.
 
 ## Linhagem
 
@@ -56,15 +58,16 @@ da mudança, e não lembrada depois, na revisão.
 Um backlog real de 71 itens, em seis sprints, refletido a partir de um OpenProject em Jira,
 Trello e GitHub Projects:
 
-- **Fidelidade:** os 71 itens nos três espelhos, com as horas por sprint iguais às da fonte.
+- **Fidelidade:** os 71 itens nos três espelhos (no Trello, os 11 épicos como etiquetas),
+  com as horas por sprint iguais às da fonte.
 - **Idempotência:** a segunda rodada não alterou nada em nenhum dos três.
 - **Duplicatas:** zero.
 - **Uso:** de 28/09 a 02/10/2026, as 20 mudanças registradas na fonte foram feitas por
   conversa, nenhuma pela tela. A mesma medição registra que a sprint não andou nesse período.
 
-Antes da publicação, seis rodadas de auditoria independente, 44 testes e 36 defeitos
-plantados, todos pegos. Números, custo de tradução de cada ferramenta e falhas encontradas:
-[RESULTADOS.md](RESULTADOS.md).
+Antes da publicação, rodadas sucessivas de auditoria independente, 44 testes e 40 defeitos
+plantados, todos pegos, com cada teste derrubado por pelo menos um deles. Números, custo de
+tradução de cada ferramenta e falhas encontradas: [RESULTADOS.md](RESULTADOS.md).
 
 ## Limitação atual
 
@@ -82,10 +85,10 @@ python3 sm.py mover 4 "Em execução"
 python3 sm.py mover 5 "Em execução"            # recusado: WIP 2/2
 python3 espelho.py arquivo                     # reflete no espelho local
 python3 espelho.py arquivo                     # segunda rodada: nada muda
-python3 sm.py prova                            # quantas mudanças vieram do agente
+python3 sm.py prova                            # quantas mudanças vieram do sistema agêntico
 
 python3 -m unittest discover -s testes -v      # 44 testes
-bash testes/sabotagens.sh                      # 36 defeitos plantados, todos pegos; 1 controle
+bash testes/sabotagens.sh                      # 40 defeitos plantados, todos pegos; 1 controle
 ```
 
 As saídas indicadas valem para um clone novo; para repetir do zero, `rm -rf estado`. A
