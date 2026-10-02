@@ -49,15 +49,16 @@ which side changed without trusting each tool's clock.
 Python 3 (tested on 3.13), no dependencies, no network, no accounts:
 
 ```bash
-python3 -m unittest discover -s testes -v      # 42 tests: method rules and local mirroring
-bash testes/sabotagens.sh                      # 32 planted defects, all caught; 1 control
+python3 -m unittest discover -s testes -v      # 44 tests: method rules and local mirroring
+bash testes/sabotagens.sh                      # 36 planted defects, all caught; 1 control
 ```
 
 The real-tool adapters depend on accounts and have no automated tests; they were checked against
 the tools during the experiment. The DoD and WIP checks run twice, against the local source and
-against an external source that does not inherit from it, to show the rules do not depend on which
-implementation is the source. Sabotages S5 to S32 come from four rounds of independent audit, including sabotages
-aimed at every behavioral claim in these texts. Each became a test.
+against an external source that does not inherit from it and exposes only the public adapter
+interface, to show the rules do not depend on which implementation is the source. Sabotages S5 to
+S36 come from five rounds of independent audit, including sabotages aimed at every behavioral claim
+in these texts. Each became a test.
 
 The usage measurement in RESULTADOS.md was taken on data that is not published. The `sm prova`
 command is the same one: reproduce the method and produce your own number.

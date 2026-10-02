@@ -283,6 +283,20 @@ class Espelhamento(Base):
 
 
 class Consultas(Base):
+    def test_projetos_lista_os_projetos(self):
+        out = self.sm("projetos").stdout
+        linhas = [l for l in out.splitlines() if l.strip()]
+        self.assertEqual(len(linhas), 2)
+        self.assertTrue(linhas[0].startswith("produto-exemplo"))
+        self.assertTrue(linhas[1].startswith("projeto-restrito"))
+
+    def test_criar_respeita_a_sprint(self):
+        r = self.sm("criar", "Item novo", "--sprint", "S2", "--horas", "1")
+        self.assertIn("[S2]", r.stdout)
+        novo = max(self.fonte_bruta()["itens"], key=lambda i: i["id"])
+        self.assertEqual((novo["assunto"], novo["sprint"], novo["inicio"], novo["fim"]),
+                         ("Item novo", "S2", "2026-10-19", "2026-10-30"))
+
     def test_itens_lista_os_itens_do_projeto(self):
         out = self.sm("itens", "-p", "produto-exemplo").stdout
         self.assertEqual(sum(1 for l in out.splitlines() if l.startswith("#")), 11)
@@ -324,11 +338,15 @@ class OutraFonte(TravasDoMetodo):
         open(os.path.join(pacote, "__init__.py"), "w").close()
         with open(os.path.join(pacote, "fonte.py"), "w", encoding="utf-8") as f:
             f.write("from adaptadores import arquivo as _local\n\n"
+                    "PUBLICOS = {'projetos', 'sprints', 'itens', 'item', 'comentarios', 'criar',\n"
+                    "            'atualizar', 'comentar', 'atividades_desde'}\n\n"
                     "class Fonte:\n"
-                    "    \"\"\"Não herda da fonte local: compõe e delega.\"\"\"\n"
+                    "    \"\"\"Não herda da fonte local e só expõe a interface pública dos adaptadores.\"\"\"\n"
                     "    nome = 'outra-ferramenta'\n"
                     "    def __init__(self, cfg):\n        self._f = _local.Fonte(cfg)\n        self.url = 'outra://fonte'\n"
-                    "    def __getattr__(self, n):\n        return getattr(self._f, n)\n")
+                    "    def __getattr__(self, n):\n"
+                    "        if n not in PUBLICOS:\n            raise AttributeError(n)\n"
+                    "        return getattr(self._f, n)\n")
         caminho = os.path.join(self.tmp, "config.exemplo.json")
         with open(caminho, encoding="utf-8") as f:
             cfg = json.load(f)
@@ -339,10 +357,12 @@ class OutraFonte(TravasDoMetodo):
 
     def test_a_fonte_e_mesmo_outra(self):
         self.assertIn("fonte: outra-ferramenta", self.sm("prova").stdout)
-        r = subprocess.run([sys.executable, "-c",
-                            "import adaptadores.arquivo as a, fonte_externa.fonte as e; print(issubclass(e.Fonte, a.Fonte))"],
-                           capture_output=True, text=True, env=dict(self.env, PYTHONPATH=self.tmp + os.pathsep + RAIZ))
-        self.assertEqual(r.stdout.strip(), "False", r.stderr)                 # implementação independente
+        codigo = ("import adaptadores.arquivo as a, fonte_externa.fonte as e, nucleo\n"
+                  "f = e.Fonte(nucleo.carregar_config())\n"
+                  "print(issubclass(e.Fonte, a.Fonte), hasattr(f, '_ler'), hasattr(f, '_gravar'), hasattr(f, 'arq'))")
+        r = subprocess.run([sys.executable, "-c", codigo], capture_output=True, text=True,
+                           env=dict(self.env, PYTHONPATH=self.tmp + os.pathsep + RAIZ + os.pathsep + self.env.get("PYTHONPATH", "")))
+        self.assertEqual(r.stdout.strip(), "False False False False", r.stderr)   # só a interface pública
 
 
 class Configuracao(unittest.TestCase):

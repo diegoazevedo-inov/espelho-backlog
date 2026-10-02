@@ -78,8 +78,8 @@ python3 espelho.py arquivo                     # reflete no espelho local
 python3 espelho.py arquivo                     # segunda rodada: nada muda
 python3 sm.py prova                            # quantas mudanças vieram do agente
 
-python3 -m unittest discover -s testes -v      # 42 testes
-bash testes/sabotagens.sh                      # 32 defeitos plantados, todos pegos; 1 controle
+python3 -m unittest discover -s testes -v      # 44 testes
+bash testes/sabotagens.sh                      # 36 defeitos plantados, todos pegos; 1 controle
 ```
 
 As saídas indicadas valem para um clone novo. Para repetir do zero: `rm -rf estado`. Um
@@ -87,11 +87,13 @@ As saídas indicadas valem para um clone novo. Para repetir do zero: `rm -rf est
 
 No espelho local, os testes conferem o conteúdo de cada cartão contra a fonte (coluna, título,
 horas, sprint, épico pai e descrição), e não só a contagem. As travas da DoD e do WIP rodam duas
-vezes: com a fonte local e com uma fonte externa que não herda dela (outro módulo, outro nome,
-outra classe), para provar que as regras não dependem de qual implementação é a fonte. As
-sabotagens S5 a S32 vêm de quatro rodadas de auditoria independente: defeitos que a auditoria plantou e os testes da época não pegavam, mais sabotagens
-dirigidas a cada afirmação de comportamento destes textos. Cada uma virou um teste. O script exige que cada trecho
-sabotado seja único no arquivo, para que nenhuma sabotagem atinja o lugar errado em silêncio.
+vezes: com a fonte local e com uma fonte externa que não herda dela e só expõe a interface pública
+dos adaptadores (outro módulo, outro nome, outra classe, nenhum atributo interno), para provar que
+as regras não dependem de qual implementação é a fonte. As sabotagens S5 a S36 vêm de cinco rodadas
+de auditoria independente: defeitos que a auditoria plantou e os testes da época não pegavam, mais
+sabotagens dirigidas a cada afirmação de comportamento destes textos. Cada uma virou um teste. O
+script exige que cada trecho sabotado seja único no arquivo, para que nenhuma sabotagem atinja o
+lugar errado em silêncio.
 
 O backlog fictício tem um segundo projeto fora do escopo do espelho. O teste de escopo procura no
 espelho cada campo de texto dos itens desse projeto (título e descrição, não só o ID) e falha se

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Um teste só merece confiança depois de ver um defeito plantado dar vermelho.
 # Cada sabotagem reproduz uma falha real (ou um risco real) do experimento, numa cópia
-# temporária. Esperado: todas as sabotagens (S1–S32) FALHAM e o controle PASSA.
+# temporária. Esperado: todas as sabotagens (S1–S36) FALHAM e o controle PASSA.
 #
 #     bash testes/sabotagens.sh
 set -u
@@ -92,6 +92,15 @@ sabotar "S31 sm wip não conta a ocupação" FALHA \
   "$(troca sm.py "[('n = len([i for i in f.itens(proj, [st]) if i[\"tipo\"] != \"Épico\"])', 'n = 0')]")"
 sabotar "S32 sm itens não lista nada" FALHA \
   "$(troca sm.py "[('for i in its: print(linha(i))', 'for i in []: print(linha(i))')]")"
+# Sabotagens dirigidas da quinta rodada da auditoria:
+sabotar "S33 WIP só vale se a fonte expõe o atributo privado _ler" FALHA \
+  "$(troca sm.py "[('lim = M.get(\"wip\", {}).get(projeto, {}).get(status)', 'lim = M.get(\"wip\", {}).get(projeto, {}).get(status) if hasattr(f, \"_ler\") else None')]")"
+sabotar "S34 DoD só vale se a fonte expõe o atributo privado _gravar" FALHA \
+  "$(troca sm.py "[('    if destino == feito and not (a.evidencia or \"\").strip():', '    if hasattr(f, \"_gravar\") and destino == feito and not (a.evidencia or \"\").strip():')]")"
+sabotar "S35 sm projetos não lista nada" FALHA \
+  "$(troca sm.py "[('    for p in f.projetos():', '    for p in []:')]")"
+sabotar "S36 sm criar ignora --sprint" FALHA \
+  "$(troca adaptadores/arquivo.py "[('\"sprint\": sprint, \"bucket\": None,', '\"sprint\": None, \"bucket\": None,')]")"
 sabotar "C0 controle: nenhuma mudança de comportamento" PASSA \
   "$(troca sm.py "[('# noqa: E402', '# noqa: E402 ')]")"
 
