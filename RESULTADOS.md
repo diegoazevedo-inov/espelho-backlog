@@ -97,7 +97,8 @@ deixados para decisão do proprietário.
 | 5 | `e838c69` | todas as anteriores + dirigidas ao texto novo | 23 de 23 dirigidas, 15 de 15 antigos; 2 afirmações novas sem sabotagem detectada | a fonte externa expunha atributos internos da fonte local; a saída de `sm projetos` e a sprint de `sm criar` não eram verificadas |
 | 6 | `9537c90` | 29 dirigidas das rodadas anteriores + 15 antigos + 3 novas | todas detectadas | nenhum bloqueante ou ressalva; veredito "pode ir a público" |
 | 7 | `1f6486c` | somente texto (README reescrito) | — | a afirmação "cada teste é provado por uma sabotagem" não se sustentava: 4 testes nunca falhavam; o script passou a verificar a cobertura e recebeu as sabotagens S37 a S40 |
-| 8 | `26e9859` | textos revisados + verificação de cobertura | — | a cópia de referência era verificada só após a primeira carga, e não após atualizações; nova asserção e sabotagem S41 |
+| 8 | `26e9859` | 2 testes que nunca falham + uma cópia de referência que não se atualiza | testes que nunca falham: 2 de 2 detectados pela verificação de cobertura; cópia não atualizada: não detectada | a cópia de referência era verificada só após a primeira carga, e não após atualizações; nova asserção e sabotagem S41 |
+| 9 | `b1c8fd4` | a cópia de referência que não se atualiza + suíte e script | todas detectadas | nenhum bloqueante ou ressalva; veredito "pode ir a público" |
 
 Cada defeito não detectado e cada brecha resultaram num teste e numa sabotagem (S5 a S41), e os
 textos passaram a afirmar apenas o que o código sustenta. O próprio script de sabotagem continha
