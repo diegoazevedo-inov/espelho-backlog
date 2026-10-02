@@ -1,64 +1,72 @@
-# Espelho — interoperable process: the method as code, mirrored into four tools
+# Espelho Backlog
 
-Teams use different tools. When the process lives inside one of them, it does not cross over to
-the others: each board becomes its own version of the rules. This repository treats the process
-as code, outside any tool, and treats each tool as a showcase that receives the reflection of a
-single source of truth. The method is operated by agentic systems through natural language.
+A work process that crosses different tools without changing its rules. The process is code,
+outside any tool; one tool holds the source of truth, and the others receive its reflection.
+The method is operated by agentic systems through natural language: whoever works talks, the
+system enforces the rules, and the boards are for whoever needs to see.
 
 The documentation is in Portuguese. This page is a summary.
 
-## The thesis, in three rules
+## The problem
 
-1. **One source of truth.** Items live in one tool; the others are mirrors. In stage 1 nothing
-   flows back from a mirror.
-2. **Identity lives in the item itself.** Every mirrored card carries its origin ID (an `op:ID`
-   marker; an `op-ID` label in Jira). The syncer's local state speeds things up, but the marker on
-   the item is the identity of last resort: if a create response is lost, or the local state is
-   gone, nothing duplicates, because the marker is searched before creating. Items are never
-   identified by title. Declared exception: Trello has no epics, so an epic becomes a label,
-   found by its name.
-3. **The rules of the method are code, not habit.** An item without evidence cannot reach the
-   final status; a column at its WIP limit refuses the next item; a sprint above capacity shows the
-   excess. These rules apply to every tool alike, because they depend on none of them.
+Teams use different tools. When the process lives inside one of them, it does not cross over
+to the others: each board becomes its own version of the rules, and one board's Definition of
+Done does not hold on another. None of the tools tested, in their default configuration,
+prevents an item from being closed without evidence or a column from exceeding its WIP limit.
+
+## Principles
+
+**One source of truth.** Items live in one tool; the others are mirrors, and nothing flows
+back from a mirror to the source.
+
+**Identity lives in the item itself.** Every mirrored card carries its origin ID. An item is
+never recognized by its title, and nothing duplicates, even when the network fails during a
+sync.
+
+**The rules are code, not habit.** An item without evidence cannot reach the final status; a
+column at its WIP limit refuses the next item; a sprint above capacity shows the excess. The
+rules hold for any tool, because they depend on none.
+
+**A planted defect before trust.** Every rule has a test, and every test is proven by a
+sabotage: the defect is planted on purpose, and the test must fail.
 
 ## Lineage
 
-Nothing here is new as an idea. It is software engineering discipline applied to managing one's
-own work: single source of truth, idempotent operations, acceptance criteria as a gate, separation
-between whoever executes and whoever verifies. Scrum and Kanban provide the vocabulary.
+Nothing here is new as an idea. It is software engineering discipline applied to managing
+one's own work: single source of truth, idempotent operations, acceptance criteria as a gate,
+separation between whoever executes and whoever verifies. Scrum and Kanban provide the
+vocabulary. AI-assisted development has been rediscovering part of this discipline, not
+always with what made it useful. The code only makes the rules verifiable: a rule is checked
+at the moment of the change, not remembered later, at review.
 
-## What is demonstrated (stage 1)
+## Results
 
-A real backlog of 71 items across six sprints was mirrored from OpenProject into Jira, Trello and
-GitHub Projects. In all three, a second run changed nothing, no duplicate appeared, and hours per
-sprint match the source; in two of them (Trello and GitHub) this held with the network failing
-mid-load. Each tool imposed a different
-translation cost: Jira required story points to stand in for hours; Trello has no epics, sprints or
-estimates and needed labels and title suffixes; GitHub Projects supported everything natively but
-its API cannot create board views. None of the three, by default, enforces WIP or requires evidence
-to close an item. Figures and failures found along the way: [RESULTADOS.md](RESULTADOS.md).
+A backlog of 71 items across six sprints, mirrored from OpenProject into Jira, Trello and
+GitHub Projects:
 
-## What is not yet demonstrated (stage 2)
+- **Fidelity:** all 71 items in the three mirrors, with hours per sprint matching the source.
+- **Idempotency:** a second run changed nothing in any of the three.
+- **Duplicates:** zero.
+- **Usage:** from 2026-09-28 to 2026-10-02, all 20 changes recorded in the source were made
+  through conversation, none through the tool's screen. The same measurement records that the
+  sprint did not move in that period.
 
-The way back: changes made in any mirror flowing to the source through the same rules. Every
-mirror already stores a reference copy of each item, which is what makes it possible to tell
-which side changed without trusting each tool's clock.
+Before publication: six rounds of independent audit, 44 tests and 36 planted defects, all
+caught. Figures, each tool's translation cost and the failures found:
+[RESULTADOS.md](RESULTADOS.md).
+
+## Current limitation
+
+Mirroring is one-way: changes made in a mirror do not yet flow back to the source.
 
 ## Reproduce
 
 Python 3 (tested on 3.13), no dependencies, no network, no accounts:
 
 ```bash
-python3 -m unittest discover -s testes -v      # 44 tests: method rules and local mirroring
+python3 -m unittest discover -s testes -v      # 44 tests
 bash testes/sabotagens.sh                      # 36 planted defects, all caught; 1 control
 ```
-
-The real-tool adapters depend on accounts and have no automated tests; they were checked against
-the tools during the experiment. The DoD and WIP checks run twice, against the local source and
-against an external source that does not inherit from it and exposes only the public adapter
-interface, to show the rules do not depend on which implementation is the source. Sabotages S5 to
-S36 come from five rounds of independent audit, including sabotages aimed at every behavioral claim
-in these texts. Each became a test.
 
 The usage measurement in RESULTADOS.md was taken on data that is not published. The `sm prova`
 command is the same one: reproduce the method and produce your own number.
