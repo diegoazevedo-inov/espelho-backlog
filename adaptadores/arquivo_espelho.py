@@ -3,9 +3,9 @@
 Serve para reproduzir o espelhamento sem conta em ferramenta nenhuma. A identidade de cada
 cartão é o marcador op:ID dentro da descrição, e não o título nem o estado local.
 
-Para reproduzir a falha de rede real (criação aceita pela ferramenta, resposta perdida no caminho),
+Para reproduzir uma resposta perdida (criação aceita pela ferramenta, resposta não recebida),
 defina ESPELHO_SIMULAR_RESPOSTA_PERDIDA com IDs separados por vírgula: o cartão é gravado e,
-em seguida, a chamada falha com TimeoutError, como aconteceu de verdade.
+em seguida, a chamada falha com TimeoutError, como numa ferramenta real.
 """
 import json
 import os
