@@ -84,8 +84,9 @@ class Espelho:
                 f"Etapa 1: mudanças feitas aqui não voltam e serão sobrescritas.\n\n{c['descricao'] or ''}\n\nop:{c['op_id']}")
         p = dict(name=nome[:16384], desc=desc[:16384], idList=self.lista[c["status"]], idLabels=",".join(ids),
                  due=(c["fim"] + "T18:00:00" + self.fuso) if c["fim"] else "", dueComplete="true" if c["status"] == nucleo.status_feito(self.cfg) else "false")
+        adotado = False
         if not ref and self.por_op.get(c["op_id"]):          # já existe no Trello (ex.: resposta perdida) → adota
-            ref = {"cartao": self.por_op[c["op_id"]][0]}
+            ref, adotado = {"cartao": self.por_op[c["op_id"]][0]}, True
         if ref: self._r("PUT", f"/cards/{ref['cartao']}", **p)
         else:
             try: ref = {"cartao": self._r("POST", "/cards", pos="bottom", **p)["id"]}
@@ -95,4 +96,4 @@ class Espelho:
                 ref = {"cartao": self.por_op[c["op_id"]][0]}
             self.por_op[c["op_id"]] = [ref["cartao"]]
         time.sleep(0.15)
-        return ref
+        return dict(ref, _adotado=True) if adotado else ref

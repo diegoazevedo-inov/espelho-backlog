@@ -81,13 +81,23 @@ Os 11 itens pendentes são mudanças reais feitas na fonte depois de 24/09, aind
 
 ## Auditoria independente (02/10/2026)
 
-O repositório foi auditado por uma sessão separada, sem acesso ao backlog real, antes de ser
-publicado. Veredito: pode ir a público com ressalvas. Histórico, segredos, dados reais e
-reprodutibilidade foram aprovados. Dos 8 defeitos que a auditoria plantou, 6 passaram pelos
-testes da primeira versão, e 4 afirmações dos textos iam além do código. A auditoria também achou
-uma brecha na Definition of Done (evidência só com espaços era aceita). Os 6 defeitos e a brecha
-viraram testes e sabotagens (S6 a S11 e S5), e os textos foram corrigidos para dizer só o que o
-código sustenta.
+Antes da publicação, o repositório foi auditado por uma sessão separada, sem acesso ao backlog
+real, em duas rodadas. Em ambas, histórico, segredos, dados reais e reprodutibilidade foram
+aprovados; o veredito foi "pode ir a público com ressalvas", condicionado à confiança nos testes.
+Autor e fuso dos commits foram deixados para decisão do dono.
+
+| Rodada | Commit auditado | Defeitos plantados pela auditoria | Pegos pelos testes da época | Outros achados |
+|---|---|---|---|---|
+| 1 | `5f9bffc` | 8 | 2 | 4 afirmações além do código; brecha na DoD (evidência só com espaços) |
+| 2 | `9f1ebbd` | os 8 anteriores + 6 novos | 8 dos antigos, 0 dos novos | contagem de "criados" incluía cartões adotados pelo marcador; um texto absoluto demais sobre IDs no código |
+
+Cada defeito que escapou e cada brecha virou um teste e uma sabotagem (S5 a S18), e os textos
+passaram a dizer só o que o código sustenta. O próprio script de sabotagem tinha um alvo errado
+(um trecho repetido no arquivo, sabotado no lugar errado); passou a exigir trechos únicos.
+
+Limite declarado: sempre é possível plantar um defeito que nenhum teste pega. O critério adotado
+aqui é que toda afirmação de comportamento dos textos tenha um teste, e que esse teste pegue a
+sabotagem daquela afirmação.
 
 ## O que a etapa 1 não demonstra
 

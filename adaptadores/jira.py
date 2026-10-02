@@ -12,7 +12,7 @@ import base64, json, time, urllib.request, urllib.error
 
 import nucleo
 
-PRIO = {"Alta": "2", "Normal": "3", "Baixa": "4", "Imediata": "1"}
+PRIO_PADRAO = {"Alta": "2", "Normal": "3", "Baixa": "4", "Imediata": "1"}   # IDs padrão do Jira Cloud
 
 
 def _env():
@@ -34,6 +34,8 @@ class Espelho:
         PROJETO, QUADRO, FUSO, TIPOS = conf["projeto"], conf["quadro"], conf.get("fuso", "+00:00"), conf["tipos"]
         SP, SPRINT, INICIO = conf["campo_pontos"], conf["campo_sprint"], conf["campo_inicio"]
         self.conf = conf
+        global PRIO
+        PRIO = conf.get("prioridades", PRIO_PADRAO)
         self.url, auth = _env()
         self.h = {"Authorization": "Basic " + auth, "Accept": "application/json", "Content-Type": "application/json"}
 
@@ -91,21 +93,22 @@ class Espelho:
         if c["bucket"] == "Rotina": rot.append("rotina")
         f = {"summary": (("[Marco] " if c["tipo"] == "Marco" else "") + c["assunto"])[:250],
              "description": adf(c["descricao"], c["op_url"]), "labels": rot, "duedate": c["fim"]}
-        if c["tipo"] != "Épico": f["priority"] = {"id": PRIO.get(c["prioridade"], "3")}
+        if c["tipo"] != "Épico": f["priority"] = {"id": PRIO.get(c["prioridade"], PRIO.get("Normal"))}
         f[INICIO] = c["inicio"]
         f[SP] = c["horas"]
         if c["tipo"] != "Épico":
             f[SPRINT] = self.sprint_id.get(c["sprint"]) if c["sprint"] else None
         if pai_ref: f["parent"] = {"key": pai_ref["chave"]}
+        adotado = False
         if ref:
             self._r("PUT", f"/rest/api/3/issue/{ref['chave']}", {"fields": f})
         else:
             achado = self._por_marcador(c["op_id"])           # já existe (resposta perdida antes) → adota
             if achado:
-                ref = {"chave": achado}
+                ref, adotado = {"chave": achado}, True
                 self._r("PUT", f"/rest/api/3/issue/{achado}", {"fields": f})
             else:
-                f.update({"project": {"key": PROJETO}, "issuetype": {"id": TIPOS.get(c["tipo"], "10003")}})
+                f.update({"project": {"key": PROJETO}, "issuetype": {"id": TIPOS.get(c["tipo"], TIPOS["Tarefa"])}})
                 if f.get(SPRINT) is None: f.pop(SPRINT, None)
                 try:
                     ref = {"chave": self._r("POST", "/rest/api/3/issue", {"fields": f})["key"]}
@@ -115,4 +118,4 @@ class Espelho:
                     if not achado: raise SystemExit(f"Jira: criação de OP#{c['op_id']} não confirmada")
                     ref = {"chave": achado}
         self._transicionar(ref["chave"], c["status"])
-        return ref
+        return dict(ref, _adotado=True) if adotado else ref

@@ -142,7 +142,7 @@ class Espelho:
             iss = self.por_op[c["op_id"]]
             item = self._gql("mutation($p:ID!,$c:ID!){addProjectV2ItemById(input:{projectId:$p,contentId:$c}){item{id}}}",
                              {"p": self.pid, "c": iss["node_id"]})["addProjectV2ItemById"]["item"]["id"]
-            ref = {"numero": iss["number"], "id_num": iss["id"], "item": item, "pai": None}
+            ref = {"numero": iss["number"], "id_num": iss["id"], "item": item, "pai": None, "_adotado": True}
         if ref:
             self._rest("PATCH", f"{base}/{ref['numero']}", dados)
         else:
@@ -170,9 +170,10 @@ class Espelho:
         else:
             m.append(f'sp:clearProjectV2ItemFieldValue(input:{{projectId:$p,itemId:$i,fieldId:"{self.c["sprint"]}"}}){{clientMutationId}}')
         self._gql("mutation($p:ID!,$i:ID!){" + " ".join(m) + "}", {"p": self.pid, "i": ref["item"]})
+        adotado = bool(ref.pop("_adotado", False))
         # hierarquia: sub-issue do épico
         if pai_ref and ref.get("pai") != pai_ref["numero"]:
             self._rest("POST", f"{base}/{pai_ref['numero']}/sub_issues", {"sub_issue_id": ref["id_num"], "replace_parent": True})
             ref["pai"] = pai_ref["numero"]
         time.sleep(0.8)                                   # respeita o limite secundário de criação do GitHub
-        return ref
+        return dict(ref, _adotado=True) if adotado else ref

@@ -82,6 +82,11 @@ class TravasDoMetodo(Base):
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertIn("Evidência (DoD)", self.sm("ver", "3").stdout)
 
+    def test_forcar_nao_desliga_a_dod(self):
+        r = self.sm("mover", "3", "Concluído", "--forcar")
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("DoD", r.stderr)
+
     def test_wip_recusa_o_terceiro(self):
         self.assertEqual(self.sm("mover", "3", "Em execução").returncode, 0)
         self.assertEqual(self.sm("mover", "4", "Em execução").returncode, 0)
@@ -111,6 +116,12 @@ class TravasDoMetodo(Base):
         self.assertIn("23h de 20h", out)
         self.assertIn("EXCEDE em 3h", out)
 
+    def test_planejado_inclui_itens_concluidos(self):
+        self.sm("mover", "3", "Concluído", "--evidencia", "log do teste de bloqueio")
+        out = self.sm("sprint", "S1").stdout
+        self.assertIn("planejado 23h de 20h", out)
+        self.assertIn("concluído 6h", out)
+
 
 class Espelhamento(Base):
     def test_idempotencia_segunda_rodada_nao_muda_nada(self):
@@ -130,12 +141,35 @@ class Espelhamento(Base):
             self.assertEqual(c["sprint"], i["sprint"])
             esperado = i["assunto"] + (f" · {i['horas']:g}h" if i["horas"] else "")
             self.assertEqual(c["titulo"], esperado)
+            self.assertIn(i["descricao"], c["descricao"])
+            if i["pai_id"]:
+                cartao_pai = next(k for k, v in self.espelho_bruto()["cartoes"].items()
+                                  if re.search(rf"op:{i['pai_id']}\s*$", v["descricao"]))
+                self.assertEqual(c["pai"], cartao_pai, f"item {i['id']} sem o épico pai")
+            else:
+                self.assertIsNone(c["pai"])
 
     def test_mudanca_de_status_reflete_no_espelho(self):
         self.espelho("arquivo")
         self.sm("mover", "3", "Em execução")
         self.assertIn("0 criados, 1 atualizados", self.espelho("arquivo").stdout)
         self.assertEqual(self.cartao_de(3)["coluna"], "Em execução")
+
+    def test_item_concluido_continua_espelhado(self):
+        self.espelho("arquivo")
+        self.sm("mover", "3", "Concluído", "--evidencia", "log do teste de bloqueio")
+        self.assertIn("0 criados, 1 atualizados", self.espelho("arquivo").stdout)
+        self.assertEqual(self.cartao_de(3)["coluna"], "Concluído")
+        self.assertEqual(sum(self.cartoes().values()), 11)
+
+    def test_estado_local_perdido_adota_sem_duplicar(self):
+        """O marcador no cartão é a identidade de última instância: sem o estado local, nada duplica."""
+        self.espelho("arquivo")
+        os.remove(os.path.join(self.tmp, "estado", "arquivo.json"))
+        out = self.espelho("arquivo").stdout
+        self.assertIn("0 criados", out)
+        self.assertIn("11 adotados pelo marcador", out)
+        self.assertEqual(sum(self.cartoes().values()), 11)
 
     def test_mudanca_na_fonte_atualiza_sem_criar(self):
         self.espelho("arquivo")
@@ -151,7 +185,10 @@ class Espelhamento(Base):
         falha = self.espelho("arquivo", extra_env={"ESPELHO_SIMULAR_RESPOSTA_PERDIDA": "13"})
         self.assertNotEqual(falha.returncode, 0)
         self.assertIn("resposta perdida", falha.stderr)
-        self.assertEqual(self.espelho("arquivo").returncode, 0)
+        retomada = self.espelho("arquivo")
+        self.assertEqual(retomada.returncode, 0)
+        self.assertIn("0 criados", retomada.stdout)
+        self.assertIn("1 adotados pelo marcador", retomada.stdout)
         duplicados = {k: v for k, v in self.cartoes().items() if v > 1}
         self.assertEqual(duplicados, {})
         self.assertEqual(self.cartoes()[13], 1)
@@ -184,6 +221,11 @@ class Medicao(Base):
         self.assertIn("3 mudanças", out)
         self.assertIn("66.7% por linguagem natural", out)
         self.assertIn("Pessoa (uso direto da ferramenta)", out)
+
+    def test_prova_respeita_o_periodo(self):
+        self.sm("mover", "3", "Em execução")
+        self.assertIn("0 mudanças", self.sm("prova", "--desde", "2999-01-01").stdout)
+        self.assertIn("Desde 2026-10-01: 2 mudanças", self.sm("prova", "--desde", "2026-10-01").stdout)
 
 
 if __name__ == "__main__":

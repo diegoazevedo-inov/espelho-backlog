@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Um teste só merece confiança depois de ver um defeito plantado dar vermelho.
 # Cada sabotagem reproduz uma falha real (ou um risco real) do experimento, numa cópia
-# temporária. Esperado: todas as sabotagens (S1–S11) FALHAM e o controle PASSA.
+# temporária. Esperado: todas as sabotagens (S1–S18) FALHAM e o controle PASSA.
 #
 #     bash testes/sabotagens.sh
 set -u
@@ -20,8 +20,8 @@ sabotar() {  # $1 descrição · $2 esperado (FALHA|PASSA) · $3 script python q
   rm -rf "$T"
 }
 
-troca() {  # gera python que troca um trecho exato num arquivo (falha alto se o trecho sumiu)
-  printf 'import sys\ns=open("%s").read()\nfor a,b in %s:\n    assert a in s, "trecho ausente: "+a\n    s=s.replace(a,b,1)\nopen("%s","w").write(s)\n' "$1" "$2" "$1"
+troca() {  # gera python que troca um trecho exato e ÚNICO num arquivo (falha alto se sumiu ou é ambíguo)
+  printf 'import sys\ns=open("%s").read()\nfor a,b in %s:\n    assert s.count(a) == 1, ("trecho ausente: " if a not in s else "trecho ambíguo (%%d ocorrências): " %% s.count(a))+a\n    s=s.replace(a,b,1)\nopen("%s","w").write(s)\n' "$1" "$2" "$1"
 }
 
 sabotar "S1 WIP recebe número interno em vez do identificador" FALHA \
@@ -47,6 +47,21 @@ sabotar "S10 WIP passa a contar épicos" FALHA \
   "$(troca sm.py "[('ocup = [i for i in f.itens(projeto, [status]) if i[\"id\"] != ignorar_id and i[\"tipo\"] != \"Épico\"]', 'ocup = [i for i in f.itens(projeto, [status]) if i[\"id\"] != ignorar_id]')]")"
 sabotar "S11 descrição de item fora do escopo vaza para o espelho" FALHA \
   "$(troca espelho.py "[('    itens = [c for c in itens if c[\"projeto_id\"] in escopo]', '    itens = [c for c in itens if c[\"projeto_id\"] in escopo]; itens[0][\"descricao\"] = (itens[0][\"descricao\"] or \"\") + \" \".join(i[\"descricao\"] for i in fonte.itens(None, abertos=False) if i[\"projeto_id\"] not in escopo)')]")"
+# Defeitos da segunda rodada da auditoria (N1–N6) e a contagem de adoções (E1):
+sabotar "S12 --forcar também desliga a DoD" FALHA \
+  "$(troca sm.py "[('if destino == feito and not (a.evidencia or \"\").strip():', 'if destino == feito and not (a.evidencia or \"\").strip() and not a.forcar:')]")"
+sabotar "S13 planejado da sprint exclui itens concluídos" FALHA \
+  "$(troca sm.py "[('get(a.projeto)\\n    total = sum(i[\"horas\"] or 0 for i in its)', 'get(a.projeto)\\n    total = sum(i[\"horas\"] or 0 for i in its if i[\"status\"] != feito)')]")"
+sabotar "S14 itens concluídos deixam de ser espelhados" FALHA \
+  "$(troca espelho.py "[('for p in escopo for i in fonte.itens(p, abertos=False)]', 'for p in escopo for i in fonte.itens(p, abertos=True)]')]")"
+sabotar "S15 cartão nunca aponta o épico pai" FALHA \
+  "$(troca adaptadores/arquivo_espelho.py "[('\"pai\": pai_ref[\"cartao\"] if pai_ref else None', '\"pai\": None')]")"
+sabotar "S16 corpo da descrição não chega ao cartão" FALHA \
+  "$(troca adaptadores/arquivo_espelho.py "[(\"{c['descricao'] or ''}\", \"\")]")"
+sabotar "S17 medição ignora o período (--desde)" FALHA \
+  "$(troca adaptadores/arquivo.py "[('for a in self._ler()[\"atividades\"] if a[\"quando\"][:10] >= desde]', 'for a in self._ler()[\"atividades\"]]')]")"
+sabotar "S18 adoção pelo marcador contada como criação" FALHA \
+  "$(troca espelho.py "[('elif not a.simular and adotado: adotados += 1', 'elif False: adotados += 1')]")"
 sabotar "C0 controle: nenhuma mudança de comportamento" PASSA \
   "$(troca sm.py "[('# noqa: E402', '# noqa: E402 ')]")"
 

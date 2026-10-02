@@ -52,12 +52,13 @@ class Espelho:
                   "coluna": c["status"], "tipo": c["tipo"], "sprint": c["sprint"],
                   "pai": pai_ref["cartao"] if pai_ref else None,
                   "descricao": f"Espelho da fonte da verdade: {c['op_url']}\n\n{c['descricao'] or ''}\n\nop:{c['op_id']}"}
+        adotado = False
         if not ref and self.por_op.get(c["op_id"]):          # já existe (resposta perdida antes) → adota
-            ref = {"cartao": self.por_op[c["op_id"]][0]}
+            ref, adotado = {"cartao": self.por_op[c["op_id"]][0]}, True
         if ref:
             d["cartoes"][ref["cartao"]] = cartao
             self._gravar(d)
-            return ref
+            return dict(ref, _adotado=True) if adotado else ref
         cid = f"c{len(d['cartoes']) + 1}"
         d["cartoes"][cid] = cartao
         self._gravar(d)

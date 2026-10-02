@@ -2,7 +2,8 @@
 
 Todo nome específico de uma instalação (projetos, quadros, repositório, fuso, vocabulário
 das colunas, prefixo de sprints a reaproveitar) vem da configuração. O código não conhece
-nenhum backlog real. Os IDs internos de tipos e campos do Jira também vêm da configuração.
+nenhum backlog real. No Jira, os IDs de tipos e campos vêm da configuração; os IDs de prioridade
+têm como padrão os do Jira Cloud e podem ser sobrescritos em "prioridades".
 
 Ordem de busca da configuração:
   1. variável de ambiente ESPELHO_CONFIG

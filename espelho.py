@@ -59,7 +59,7 @@ def main(argv=None):
         if not a.simular:
             esp.preparar(escopo, sprints, est.setdefault("_meta", {}))
             salvar(cfg, nome, est)
-        criados = atualizados = iguais = 0
+        criados = atualizados = iguais = adotados = 0
         for c in itens:
             h = hashlib.sha256(json.dumps(c, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]
             reg = est.get(str(c["op_id"]))
@@ -71,12 +71,14 @@ def main(argv=None):
             else:
                 pai_ref = est.get(str(c["pai_id"]), {}).get("ref") if c["pai_id"] else None
                 ref = esp.upsert(c, reg["ref"] if reg else None, pai_ref)
+                adotado = isinstance(ref, dict) and bool(ref.pop("_adotado", False))
                 est[str(c["op_id"])] = {"ref": ref, "hash": h, "snap": c}
                 salvar(cfg, nome, est)                         # grava a cada item: queda não duplica
             if reg: atualizados += 1
+            elif not a.simular and adotado: adotados += 1      # já existia na ferramenta: achado pelo marcador
             else: criados += 1
         print(f"{nome}{' (SIMULAÇÃO)' if a.simular else ''}: {criados} criados, {atualizados} atualizados, "
-              f"{iguais} sem mudança (total {len(itens)})")
+              f"{iguais} sem mudança, {adotados} adotados pelo marcador (total {len(itens)})")
 
 
 if __name__ == "__main__":
