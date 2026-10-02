@@ -1,0 +1,27 @@
+{
+  "metodo": {
+    "status_fluxo": ["Backlog", "Pronto", "Em execução", "Em auditoria", "Concluído"],
+    "status_feito": "Concluído",
+    "projeto_padrao": "produto-exemplo",
+    "wip": {"produto-exemplo": {"Em execução": 2, "Em auditoria": 2}},
+    "capacidade_horas_sprint": {"produto-exemplo": 20},
+    "autor_agente": "Agente (linguagem natural)"
+  },
+  "fonte": {
+    "adaptador": "arquivo",
+    "arquivo": "estado/fonte.json",
+    "semente": "exemplos/backlog-ficticio.json"
+  },
+  "escopo_espelho": ["produto-exemplo"],
+  "dir_estado": "estado",
+  "espelhos": {
+    "arquivo": {"adaptador": "arquivo_espelho", "arquivo": "estado/espelho-arquivo.json"}
+  },
+  "_exemplos_de_espelhos_reais": {
+    "github": {"adaptador": "github", "repo": "espelho-do-backlog", "titulo_projeto": "Backlog — espelho"},
+    "jira": {"adaptador": "jira", "site_env": "JIRA_SITE", "projeto": "CHAVE", "quadro": 1, "fuso": "-03:00",
+             "tipos": {"Épico": "10001", "Tarefa": "10003", "Marco": "10003"},
+             "campo_pontos": "customfield_10016", "campo_sprint": "customfield_10020", "campo_inicio": "customfield_10015"},
+    "trello": {"adaptador": "trello", "quadro": "Backlog — espelho"}
+  }
+}

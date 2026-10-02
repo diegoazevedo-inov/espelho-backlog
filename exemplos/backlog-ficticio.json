@@ -1,0 +1,40 @@
+{
+  "projetos": [
+    {"id": "produto-exemplo", "nome": "Produto Exemplo", "pai": null},
+    {"id": "projeto-restrito", "nome": "Projeto Restrito (fora do escopo do espelho)", "pai": null}
+  ],
+  "sprints": {
+    "produto-exemplo": [
+      {"id": 1, "nome": "S1", "inicio": "2026-10-05", "fim": "2026-10-16"},
+      {"id": 2, "nome": "S2", "inicio": "2026-10-19", "fim": "2026-10-30"}
+    ],
+    "projeto-restrito": []
+  },
+  "itens": [
+    {"id": 1, "assunto": "Autenticação", "tipo": "Épico", "status": "Backlog", "prioridade": "Alta", "projeto_id": "produto-exemplo", "pai_id": null, "sprint": null, "bucket": null, "horas": null, "inicio": null, "fim": null,
+     "descricao": "Login, sessão e recuperação de senha."},
+    {"id": 2, "assunto": "Relatórios", "tipo": "Épico", "status": "Backlog", "prioridade": "Normal", "projeto_id": "produto-exemplo", "pai_id": null, "sprint": null, "bucket": null, "horas": null, "inicio": null, "fim": null,
+     "descricao": "Exportação e painel gerencial."},
+    {"id": 3, "assunto": "Tela de login com bloqueio após 5 tentativas", "tipo": "Tarefa", "status": "Backlog", "prioridade": "Alta", "projeto_id": "produto-exemplo", "pai_id": 1, "sprint": "S1", "bucket": null, "horas": 6, "inicio": "2026-10-05", "fim": "2026-10-16",
+     "descricao": "Critério de aceitação: a sexta tentativa falha com mensagem de bloqueio, e o desbloqueio ocorre após 15 minutos."},
+    {"id": 4, "assunto": "Recuperação de senha por e-mail", "tipo": "Tarefa", "status": "Backlog", "prioridade": "Alta", "projeto_id": "produto-exemplo", "pai_id": 1, "sprint": "S1", "bucket": null, "horas": 5, "inicio": "2026-10-05", "fim": "2026-10-16",
+     "descricao": "Critério de aceitação: o link expira em 30 minutos e só pode ser usado uma vez."},
+    {"id": 5, "assunto": "Expiração de sessão por inatividade", "tipo": "Tarefa", "status": "Backlog", "prioridade": "Normal", "projeto_id": "produto-exemplo", "pai_id": 1, "sprint": "S1", "bucket": null, "horas": 3, "inicio": "2026-10-05", "fim": "2026-10-16",
+     "descricao": "Critério de aceitação: sessão encerrada após 20 minutos sem requisição."},
+    {"id": 6, "assunto": "Exportar relatório mensal em CSV", "tipo": "Tarefa", "status": "Backlog", "prioridade": "Normal", "projeto_id": "produto-exemplo", "pai_id": 2, "sprint": "S1", "bucket": null, "horas": 4, "inicio": "2026-10-05", "fim": "2026-10-16",
+     "descricao": "Critério de aceitação: o total do CSV confere com o total exibido na tela."},
+    {"id": 7, "assunto": "Painel com indicadores da semana", "tipo": "Tarefa", "status": "Backlog", "prioridade": "Normal", "projeto_id": "produto-exemplo", "pai_id": 2, "sprint": "S1", "bucket": null, "horas": 5, "inicio": "2026-10-05", "fim": "2026-10-16",
+     "descricao": "Critério de aceitação: cada indicador cita a consulta que o gerou."},
+    {"id": 8, "assunto": "Agendar envio do relatório por e-mail", "tipo": "Tarefa", "status": "Backlog", "prioridade": "Normal", "projeto_id": "produto-exemplo", "pai_id": 2, "sprint": "S2", "bucket": null, "horas": 4, "inicio": "2026-10-19", "fim": "2026-10-30",
+     "descricao": "Critério de aceitação: envio registrado com data, destinatário e anexo."},
+    {"id": 9, "assunto": "Auditoria de acessos ao relatório", "tipo": "Tarefa", "status": "Backlog", "prioridade": "Alta", "projeto_id": "produto-exemplo", "pai_id": 2, "sprint": "S2", "bucket": null, "horas": 6, "inicio": "2026-10-19", "fim": "2026-10-30",
+     "descricao": "Critério de aceitação: toda leitura gera registro com usuário e horário."},
+    {"id": 10, "assunto": "Revisar dependências com alerta de segurança", "tipo": "Tarefa", "status": "Backlog", "prioridade": "Normal", "projeto_id": "produto-exemplo", "pai_id": null, "sprint": null, "bucket": "Rotina", "horas": null, "inicio": null, "fim": null,
+     "descricao": "Rotina semanal, fora das sprints."},
+    {"id": 11, "assunto": "Entrega da versão 1.0", "tipo": "Marco", "status": "Backlog", "prioridade": "Alta", "projeto_id": "produto-exemplo", "pai_id": null, "sprint": null, "bucket": null, "horas": null, "inicio": "2026-10-30", "fim": "2026-10-30",
+     "descricao": "Marco de entrega."},
+    {"id": 12, "assunto": "Item restrito que nunca pode sair da fonte", "tipo": "Tarefa", "status": "Backlog", "prioridade": "Alta", "projeto_id": "projeto-restrito", "pai_id": null, "sprint": null, "bucket": null, "horas": 2, "inicio": null, "fim": null,
+     "descricao": "Dado sensível de exemplo. Se aparecer em qualquer espelho, a regra de escopo falhou."}
+  ],
+  "atividades": []
+}

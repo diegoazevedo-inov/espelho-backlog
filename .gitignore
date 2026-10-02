@@ -1,0 +1,10 @@
+# Estado de execução: cópias de referência dos itens espelhados.
+# Contém o conteúdo real do backlog de quem usa — nunca versionar.
+estado/
+
+# Configuração local e credenciais (o repositório traz só config.exemplo.json)
+config.json
+*.env
+
+__pycache__/
+*.pyc
