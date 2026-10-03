@@ -126,6 +126,15 @@ sabotar "S44 escopo validado só depois de escrever no primeiro espelho" FALHA \
   "$(troca espelho.py "[('    escopos = {nome: escopo_do_espelho(cfg, nome) for nome in a.espelhos}', '    escopos = {}'), ('        escopo = escopos[nome]', '        escopo = escopo_do_espelho(cfg, nome)')]")"
 sabotar "S45 escopo global antigo aceito em silêncio" FALHA \
   "$(troca espelho.py "[('    if \"escopo_espelho\" in cfg:', '    if False:')]")"
+# Décima primeira rodada: estrutura, filtro e validação próprios de cada espelho.
+sabotar "S46 sprints passadas ao quadro vêm da união dos escopos" FALHA \
+  "$(troca espelho.py "[('        sprints = {p: fonte.sprints(p) for p in escopo}', '        sprints = {p: fonte.sprints(p) for e in escopos.values() for p in e}')]")"
+sabotar "S47 itens devolvidos a mais pela fonte não são filtrados" FALHA \
+  "$(troca espelho.py "[('        itens = [c for c in itens if c[\"projeto_id\"] in escopo]', '        pass')]")"
+sabotar "S48 fonte criada antes de validar os escopos" FALHA \
+  "$(troca espelho.py "[('    escopos = {nome: escopo_do_espelho(cfg, nome) for nome in a.espelhos}', '    nucleo.fonte(cfg).projetos(); escopos = {nome: escopo_do_espelho(cfg, nome) for nome in a.espelhos}')]")"
+sabotar "S49 escopo em texto vira lista de caracteres" FALHA \
+  "$(troca espelho.py "[('    if escopo is not None and not (isinstance(escopo, list)', '    if False and not (isinstance(escopo, list)')]")"
 sabotar "C0 controle: nenhuma mudança de comportamento" PASSA \
   "$(troca sm.py "[('# noqa: E402', '# noqa: E402 ')]")"
 

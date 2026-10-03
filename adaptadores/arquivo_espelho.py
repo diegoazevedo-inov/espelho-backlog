@@ -37,6 +37,9 @@ class Espelho:
     def preparar(self, projetos, sprints, meta):
         d = self._ler()
         d["colunas"] = nucleo.fluxo(self.cfg)
+        # o que este quadro recebeu de estrutura (projetos e sprints), para conferência
+        d["projetos"] = sorted(projetos)
+        d["sprints"] = sorted({s["nome"] for lst in sprints.values() for s in lst})
         self._gravar(d)
         self._indexar()
 

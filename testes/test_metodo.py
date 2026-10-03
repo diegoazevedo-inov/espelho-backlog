@@ -253,6 +253,13 @@ class Espelhamento(Base):
         self.assertEqual(set(cliente), {12})
         self.assertEqual(len(equipe), 11)
         self.assertNotIn(12, equipe)
+        with open(os.path.join(self.tmp, "estado", "quadro-cliente.json"), encoding="utf-8") as f:
+            estrutura_cliente = json.load(f)
+        with open(os.path.join(self.tmp, "estado", "quadro-equipe.json"), encoding="utf-8") as f:
+            estrutura_equipe = json.load(f)
+        self.assertEqual(estrutura_cliente["projetos"], ["projeto-restrito"])
+        self.assertEqual(estrutura_cliente["sprints"], [])                  # nenhuma sprint de outro projeto
+        self.assertEqual(estrutura_equipe["sprints"], ["S1", "S2"])
 
     def test_espelho_sem_escopo_e_recusado_antes_de_escrever(self):
         self._configurar_espelhos({
@@ -262,6 +269,40 @@ class Espelhamento(Base):
         self.assertIn("sem 'escopo' declarado", r.stderr)
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "estado", "quadro-sem-escopo.json")))
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "estado", "espelho-arquivo.json")))   # nem o outro
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "estado", "fonte.json")))             # nem a fonte
+
+    def test_filtro_por_projeto_protege_contra_fonte_que_devolve_a_mais(self):
+        """Uma fonte pode devolver, para um projeto, itens de outros (subprojetos, por exemplo)."""
+        pacote = os.path.join(self.tmp, "fonte_ampla")
+        os.makedirs(pacote)
+        open(os.path.join(pacote, "__init__.py"), "w").close()
+        with open(os.path.join(pacote, "fonte.py"), "w", encoding="utf-8") as f:
+            f.write("from adaptadores import arquivo as _local\n\n"
+                    "class Fonte:\n"
+                    "    nome = 'fonte-ampla'\n"
+                    "    def __init__(self, cfg):\n        self._f = _local.Fonte(cfg)\n        self.url = 'ampla://fonte'\n"
+                    "    def itens(self, projeto=None, *a, **k):\n"
+                    "        return self._f.itens(None, *a, **k)          # ignora o projeto pedido\n"
+                    "    def __getattr__(self, n):\n        return getattr(self._f, n)\n")
+        caminho = os.path.join(self.tmp, "config.exemplo.json")
+        with open(caminho, encoding="utf-8") as f:
+            cfg = json.load(f)
+        cfg["fonte"]["adaptador"] = "fonte_ampla.fonte"
+        cfg["espelhos"]["cliente"] = {"adaptador": "arquivo_espelho", "arquivo": "estado/quadro-cliente.json",
+                                      "escopo": ["projeto-restrito"]}
+        with open(caminho, "w", encoding="utf-8") as f:
+            json.dump(cfg, f, ensure_ascii=False)
+        r = self.espelho("cliente", extra_env={"PYTHONPATH": self.tmp + os.pathsep + self.env.get("PYTHONPATH", "")})
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(set(self._cartoes_de("quadro-cliente.json")), {12})
+
+    def test_escopo_que_nao_e_lista_e_recusado(self):
+        self._configurar_espelhos({
+            "texto": {"adaptador": "arquivo_espelho", "arquivo": "estado/quadro-texto.json", "escopo": "produto-exemplo"}})
+        r = self.espelho("texto")
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("lista de identificadores", r.stderr)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "estado", "quadro-texto.json")))
 
     def test_escopo_global_antigo_e_recusado(self):
         caminho = os.path.join(self.tmp, "config.exemplo.json")

@@ -50,6 +50,8 @@ def escopo_do_espelho(cfg, nome):
     if conf is None:
         raise SystemExit(f"espelho '{nome}' não está na configuração")
     escopo = conf.get("escopo")
+    if escopo is not None and not (isinstance(escopo, list) and all(isinstance(p, str) and p for p in escopo)):
+        raise SystemExit(f"espelho '{nome}': 'escopo' deve ser uma lista de identificadores de projeto")
     if not escopo:
         raise SystemExit(f"espelho '{nome}' sem 'escopo' declarado: nenhum quadro recebe itens sem "
                          "que se diga quais projetos")
