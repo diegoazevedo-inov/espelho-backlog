@@ -14,7 +14,9 @@ the tool can be configured to do, the work includes keeping the board up to date
 tools means rebuilding the process. The method's rules (Definition of Ready, Definition of Done,
 WIP limit, capacity) come to depend on how each tool was configured. None of the tools tested,
 in their default configuration, prevents an item from being closed without evidence or a column
-from exceeding its WIP limit.
+from exceeding its WIP limit. With configuration, part of this is possible in some of them, such
+as a transition validator in Jira, but the configuration belongs to each tool and does not
+follow a change of tool.
 
 Audiences, on the other hand, are many: different levels within the team and, above all,
 clients, each with its own way of following the work. The board should be each audience's
@@ -51,7 +53,8 @@ moment of the change, not remembered later, at review.
 ## Results
 
 A backlog of 71 items across six sprints, mirrored from OpenProject into Jira, Trello and GitHub
-Projects:
+Projects. The backlog's content is not published; the figures below are aggregates, and the
+method runs on the fictitious backlog in "Reproduce":
 
 - **Fidelity:** all 71 items in the three mirrors (in Trello, the 11 epics as labels), with
   hours per sprint matching the source.

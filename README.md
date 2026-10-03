@@ -14,7 +14,9 @@ ferramenta permite configurar, o trabalho inclui manter o quadro em dia, e troca
 significa refazer o processo. As regras do método (Definition of Ready, Definition of Done,
 limite de WIP, capacidade) passam a depender de como cada ferramenta foi configurada. Nenhuma
 das ferramentas testadas, na configuração padrão, impede que um item seja concluído sem
-evidência ou que uma coluna passe do limite de WIP.
+evidência ou que uma coluna passe do limite de WIP. Com configuração, parte disso é possível em
+algumas delas, como um validador de transição no Jira, mas a configuração é de cada ferramenta e
+não acompanha a troca.
 
 Os públicos, por outro lado, são vários: níveis diferentes dentro da equipe e, principalmente,
 clientes, cada um com a sua forma de acompanhar o trabalho. O quadro deveria ser a vitrine de
@@ -63,7 +65,8 @@ depois, na revisão.
 ## Resultados
 
 Um backlog real de 71 itens, em seis sprints, refletido a partir de um OpenProject em Jira,
-Trello e GitHub Projects:
+Trello e GitHub Projects. O conteúdo do backlog não é publicado; os números abaixo são
+agregados, e o método roda sobre o backlog fictício em "Reproduza":
 
 - **Fidelidade:** os 71 itens nos três espelhos (no Trello, os 11 épicos como etiquetas), com as
   horas por sprint iguais às da fonte.
