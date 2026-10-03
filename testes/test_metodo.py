@@ -218,13 +218,61 @@ class Espelhamento(Base):
         caminho = os.path.join(self.tmp, "config.exemplo.json")
         with open(caminho, encoding="utf-8") as f:
             cfg = json.load(f)
-        cfg["espelhos"]["externo"] = {"adaptador": "espelho_externo.espelho", "arquivo": "estado/espelho-externo.json"}
+        cfg["espelhos"]["externo"] = {"adaptador": "espelho_externo.espelho", "arquivo": "estado/espelho-externo.json",
+                                      "escopo": ["produto-exemplo"]}
         with open(caminho, "w", encoding="utf-8") as f:
             json.dump(cfg, f, ensure_ascii=False)
         r = self.espelho("externo", extra_env={"PYTHONPATH": self.tmp + os.pathsep + self.env.get("PYTHONPATH", "")})
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertIn("11 criados", r.stdout)
         self.assertTrue(os.path.exists(os.path.join(self.tmp, "estado", "espelho-externo.json")))
+
+    def _configurar_espelhos(self, espelhos):
+        caminho = os.path.join(self.tmp, "config.exemplo.json")
+        with open(caminho, encoding="utf-8") as f:
+            cfg = json.load(f)
+        cfg["espelhos"].update(espelhos)
+        with open(caminho, "w", encoding="utf-8") as f:
+            json.dump(cfg, f, ensure_ascii=False)
+
+    def _cartoes_de(self, arquivo):
+        with open(os.path.join(self.tmp, "estado", arquivo), encoding="utf-8") as f:
+            d = json.load(f)
+        return collections.Counter(int(re.search(r"op:(\d+)\s*$", c["descricao"]).group(1))
+                                   for c in d["cartoes"].values())
+
+    def test_cada_espelho_recebe_so_o_seu_escopo(self):
+        """Cada quadro é a vitrine de um público: o do cliente recebe só o projeto do cliente."""
+        self._configurar_espelhos({
+            "equipe": {"adaptador": "arquivo_espelho", "arquivo": "estado/quadro-equipe.json", "escopo": ["produto-exemplo"]},
+            "cliente": {"adaptador": "arquivo_espelho", "arquivo": "estado/quadro-cliente.json", "escopo": ["projeto-restrito"]},
+        })
+        r = self.espelho("equipe", "cliente")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        equipe, cliente = self._cartoes_de("quadro-equipe.json"), self._cartoes_de("quadro-cliente.json")
+        self.assertEqual(set(cliente), {12})
+        self.assertEqual(len(equipe), 11)
+        self.assertNotIn(12, equipe)
+
+    def test_espelho_sem_escopo_e_recusado_antes_de_escrever(self):
+        self._configurar_espelhos({
+            "sem_escopo": {"adaptador": "arquivo_espelho", "arquivo": "estado/quadro-sem-escopo.json"}})
+        r = self.espelho("arquivo", "sem_escopo")
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("sem 'escopo' declarado", r.stderr)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "estado", "quadro-sem-escopo.json")))
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "estado", "espelho-arquivo.json")))   # nem o outro
+
+    def test_escopo_global_antigo_e_recusado(self):
+        caminho = os.path.join(self.tmp, "config.exemplo.json")
+        with open(caminho, encoding="utf-8") as f:
+            cfg = json.load(f)
+        cfg["escopo_espelho"] = ["produto-exemplo", "projeto-restrito"]
+        with open(caminho, "w", encoding="utf-8") as f:
+            json.dump(cfg, f, ensure_ascii=False)
+        r = self.espelho("arquivo")
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("'escopo_espelho' global não é aceito", r.stderr)
 
     def test_nada_volta_do_espelho_para_a_fonte(self):
         self.sm("projetos")                                            # cria a fonte de trabalho

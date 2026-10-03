@@ -117,6 +117,15 @@ sabotar "S40 fonte configurada é trocada pela local" FALHA \
 # Oitava rodada da auditoria: a cópia de referência precisa acompanhar cada atualização.
 sabotar "S41 cópia de referência não é atualizada após mudança" FALHA \
   "$(troca espelho.py "[('est[str(c[\"op_id\"])] = {\"ref\": ref, \"hash\": h, \"snap\": c}', 'est[str(c[\"op_id\"])] = {\"ref\": ref, \"hash\": h, \"snap\": reg[\"snap\"] if reg else c}')]")"
+# Décima rodada da auditoria: escopo próprio e obrigatório em cada espelho.
+sabotar "S42 todos os espelhos recebem a união dos escopos" FALHA \
+  "$(troca espelho.py "[('        escopo = escopos[nome]', '        escopo = sorted({p for e in escopos.values() for p in e})')]")"
+sabotar "S43 espelho sem escopo herda todos os projetos" FALHA \
+  "$(troca espelho.py "[('    escopo = conf.get(\"escopo\")', '    escopo = conf.get(\"escopo\") or [p[\"id\"] for p in nucleo.fonte(cfg).projetos()]')]")"
+sabotar "S44 escopo validado só depois de escrever no primeiro espelho" FALHA \
+  "$(troca espelho.py "[('    escopos = {nome: escopo_do_espelho(cfg, nome) for nome in a.espelhos}', '    escopos = {}'), ('        escopo = escopos[nome]', '        escopo = escopo_do_espelho(cfg, nome)')]")"
+sabotar "S45 escopo global antigo aceito em silêncio" FALHA \
+  "$(troca espelho.py "[('    if \"escopo_espelho\" in cfg:', '    if False:')]")"
 sabotar "C0 controle: nenhuma mudança de comportamento" PASSA \
   "$(troca sm.py "[('# noqa: E402', '# noqa: E402 ')]")"
 

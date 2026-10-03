@@ -4,7 +4,8 @@
 Idempotente: cada cartão carrega o ID da fonte (marcador op:ID) e é atualizado por esse ID,
 nunca por título. O estado de cada espelho (estado/<espelho>.json) guarda a referência e uma
 cópia de referência do item ('snap'), base para um caminho de volta, que precisa saber QUAL lado mudou.
-Escopo: só os projetos listados em "escopo_espelho" saem da fonte.
+Escopo: cada espelho declara o seu ("escopo" na configuração do espelho), porque cada quadro é a
+vitrine de um público. Espelho sem escopo declarado é recusado antes de qualquer escrita.
 """
 import argparse
 import hashlib
@@ -41,19 +42,34 @@ def salvar(cfg, nome, est):
     os.replace(p + ".tmp", p)
 
 
+def escopo_do_espelho(cfg, nome):
+    """Escopo obrigatório e próprio de cada espelho: nenhum quadro recebe itens sem que se diga quais."""
+    if "escopo_espelho" in cfg:
+        raise SystemExit("'escopo_espelho' global não é aceito: declare 'escopo' em cada espelho")
+    conf = cfg["espelhos"].get(nome)
+    if conf is None:
+        raise SystemExit(f"espelho '{nome}' não está na configuração")
+    escopo = conf.get("escopo")
+    if not escopo:
+        raise SystemExit(f"espelho '{nome}' sem 'escopo' declarado: nenhum quadro recebe itens sem "
+                         "que se diga quais projetos")
+    return list(escopo)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("espelhos", nargs="+", help="nomes definidos em 'espelhos' na configuração")
     ap.add_argument("--simular", action="store_true", help="mostra o que faria, sem escrever")
     a = ap.parse_args(argv)
     cfg = nucleo.carregar_config()
-    escopo = cfg["escopo_espelho"]
+    escopos = {nome: escopo_do_espelho(cfg, nome) for nome in a.espelhos}   # valida tudo antes de escrever
     fonte = nucleo.fonte(cfg)
-    itens = [canonico(i, fonte.url) for p in escopo for i in fonte.itens(p, abertos=False)]
-    itens = [c for c in itens if c["projeto_id"] in escopo]     # defesa extra: nada fora do escopo
-    itens.sort(key=lambda c: (ORDEM.get(c["tipo"], 9), c["op_id"]))
-    sprints = {p: fonte.sprints(p) for p in escopo}
     for nome in a.espelhos:
+        escopo = escopos[nome]
+        itens = [canonico(i, fonte.url) for p in escopo for i in fonte.itens(p, abertos=False)]
+        itens = [c for c in itens if c["projeto_id"] in escopo]     # defesa extra: nada fora do escopo
+        itens.sort(key=lambda c: (ORDEM.get(c["tipo"], 9), c["op_id"]))
+        sprints = {p: fonte.sprints(p) for p in escopo}
         esp = None if a.simular else nucleo.espelho(cfg, nome)
         est = carregar(cfg, nome)
         if not a.simular:

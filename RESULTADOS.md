@@ -18,8 +18,9 @@ Fonte: OpenProject 17.8 (self-hosted). Espelhos: Jira Cloud, Trello e GitHub Pro
 | Duplicatas (contadas pelo marcador op:ID) | 0 | 0 | 0 |
 | Horas por sprint iguais às da fonte | sim (28/24/27/21/20/16) | sim | sim |
 
-No experimento, a criação do projeto no Jira gerou uma sprint já ativa e quatro itens de exemplo.
-Sem marcador de origem, esses itens não pertencem à fonte e foram removidos antes da medição.
+No experimento, a criação do projeto no Jira gerou uma sprint já ativa e quatro itens de
+exemplo. Sem marcador de origem, esses itens não pertencem à fonte e foram removidos antes da
+medição.
 
 ## Custo de tradução por ferramenta
 
@@ -99,8 +100,9 @@ deixados para decisão do proprietário.
 | 7 | `1f6486c` | somente texto (README reescrito) | — | a afirmação "cada teste é provado por uma sabotagem" não se sustentava: 4 testes nunca falhavam; o script passou a verificar a cobertura e recebeu as sabotagens S37 a S40 |
 | 8 | `26e9859` | 2 testes que nunca falham + uma cópia de referência que não se atualiza | testes que nunca falham: 2 de 2 detectados pela verificação de cobertura; cópia não atualizada: não detectada | a cópia de referência era verificada só após a primeira carga, e não após atualizações; nova asserção e sabotagem S41 |
 | 9 | `b1c8fd4` | a cópia de referência que não se atualiza + suíte e script | todas detectadas | nenhum bloqueante ou ressalva; veredito "pode ir a público" |
+| 10 | `52a655a` | escopo por público, demonstrado com duas configurações | — | a abertura apresentava um quadro por público, mas o escopo valia para todos os espelhos de uma configuração; o escopo passou a ser próprio e obrigatório em cada espelho (sabotagens S42 a S45); a Definition of Ready é aplicada pela skill, não pelo código |
 
-Cada defeito não detectado e cada brecha resultaram num teste e numa sabotagem (S5 a S41), e os
+Cada defeito não detectado e cada brecha resultaram num teste e numa sabotagem (S5 a S45), e os
 textos passaram a afirmar apenas o que o código sustenta. O próprio script de sabotagem continha
 um alvo ambíguo: um trecho repetido no arquivo era alterado numa ocorrência diferente da
 pretendida, e a sabotagem passava sem detecção; o script passou a exigir trechos únicos.
@@ -121,4 +123,3 @@ O reflexo é de mão única: mudanças feitas num espelho ainda não retornam à
 método ainda não se aplicam a elas. A base para o caminho inverso está implementada: cada
 espelho mantém uma cópia de referência de cada item, o que permite determinar qual lado foi
 alterado sem depender do relógio de cada ferramenta.
-

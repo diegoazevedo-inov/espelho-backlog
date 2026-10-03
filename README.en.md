@@ -23,7 +23,8 @@ showcase, not the place where the process lives.
 ## Principles
 
 **One source of truth.** Items live in one tool; the others are mirrors, and nothing flows back
-from a mirror to the source.
+from a mirror to the source. Each mirror declares its own scope, so a client's board receives
+only that client's project.
 
 **Identity lives in the item itself.** Every mirrored card carries its origin ID. An item is
 never recognized by its title, and nothing duplicates, even when the response to a create call
@@ -31,7 +32,8 @@ is lost. Single exception: Trello has no epics, so an epic becomes a label found
 
 **The rules are code, not habit.** An item without evidence cannot reach the final status; a
 column at its WIP limit refuses the next item; a sprint above capacity shows the excess. The
-rules hold for any tool, because they depend on none.
+rules hold for any tool, because they depend on none. The Definition of Ready is applied by the
+skill, in conversation, not by code.
 
 **A planted defect before trust.** Every rule has a test, and every test is proven by a
 sabotage: the defect is planted on purpose, and the test must fail. The sabotage script itself
@@ -59,7 +61,7 @@ Projects:
   through conversation, none through the tool's screen. The same measurement records no sprint
   progress in that period.
 
-Before publication: successive rounds of independent audit, 44 tests and 41 planted defects, all
+Before publication: successive rounds of independent audit, 47 tests and 45 planted defects, all
 caught, with every test broken by at least one of them. Figures, each tool's translation cost
 and the failures found: [RESULTADOS.md](RESULTADOS.md).
 
@@ -74,8 +76,8 @@ possible to tell which side changed without relying on each tool's clock.
 Python 3 (tested on 3.13), no dependencies, no network, no accounts:
 
 ```bash
-python3 -m unittest discover -s testes -v      # 44 tests
-bash testes/sabotagens.sh                      # 41 planted defects, all detected; 1 control
+python3 -m unittest discover -s testes -v      # 47 tests
+bash testes/sabotagens.sh                      # 45 planted defects, all detected; 1 control
 ```
 
 The usage measurement in RESULTADOS.md was taken on data that is not published. The `sm prova`
@@ -84,4 +86,3 @@ command is the same one: reproduce the method and produce your own number.
 ## License
 
 Apache 2.0.
-

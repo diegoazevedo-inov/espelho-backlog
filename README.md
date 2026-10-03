@@ -23,7 +23,8 @@ cada público, e não o lugar onde o processo mora.
 ## Princípios
 
 **Uma fonte da verdade.** Os itens vivem numa ferramenta; as demais são espelhos, e nada volta
-de um espelho para a fonte.
+de um espelho para a fonte. Cada espelho declara o seu escopo, e o quadro de um cliente recebe
+só o projeto do cliente.
 
 **A identidade está no próprio item.** Cada cartão espelhado carrega o ID de origem. Um item
 nunca é reconhecido pelo título, e nada duplica, mesmo quando a resposta de uma criação não
@@ -32,7 +33,8 @@ chega. Única exceção: no Trello, que não tem épico, o épico vira uma etiqu
 
 **As regras são código, não costume.** Item sem evidência não chega ao status final; coluna com
 WIP cheio recusa o próximo item; sprint acima da capacidade mostra o excesso. As regras valem
-para qualquer ferramenta, porque não dependem de nenhuma.
+para qualquer ferramenta, porque não dependem de nenhuma. A Definition of Ready é aplicada pela
+skill, na conversa, e não pelo código.
 
 **Defeito plantado antes de confiar.** Cada regra tem um teste, e cada teste é provado por uma
 sabotagem: o defeito é plantado de propósito, e o teste precisa reprovar. O próprio script de
@@ -53,7 +55,7 @@ depois, na revisão.
 | Parte | Para quê | Onde |
 |---|---|---|
 | **Método** | Consultar, criar, mover e comentar itens; sprint, WIP e medição | [sm.py](sm.py) |
-| **Espelho** | Refletir a fonte nos espelhos, com escopo declarado | [espelho.py](espelho.py) |
+| **Espelho** | Refletir a fonte nos espelhos, com escopo próprio e obrigatório em cada um | [espelho.py](espelho.py) |
 | **Adaptadores** | Um por ferramenta: OpenProject, Jira, Trello, GitHub Projects e dois locais. Trocar de ferramenta é escrever outro | [adaptadores/](adaptadores/) |
 | **Skill** | Instruções para o sistema agêntico operar o método por conversa | [skill/](skill/) |
 | **Testes** | As regras como testes, e as sabotagens que provam os testes | [testes/](testes/) |
@@ -70,7 +72,7 @@ Trello e GitHub Projects:
 - **Uso:** de 28/09 a 02/10/2026, as 20 mudanças registradas na fonte foram feitas por conversa,
   nenhuma pela tela. A mesma medição registra que não houve progresso da sprint no período.
 
-Antes da publicação, rodadas sucessivas de auditoria independente, 44 testes e 41 defeitos
+Antes da publicação, rodadas sucessivas de auditoria independente, 47 testes e 45 defeitos
 plantados, todos detectados, com cada teste derrubado por pelo menos um deles. Números, custo de
 tradução de cada ferramenta e defeitos encontrados: [RESULTADOS.md](RESULTADOS.md).
 
@@ -94,8 +96,8 @@ python3 espelho.py arquivo                     # reflete no espelho local
 python3 espelho.py arquivo                     # segunda execução: nada muda
 python3 sm.py prova                            # quantas mudanças vieram do sistema agêntico
 
-python3 -m unittest discover -s testes -v      # 44 testes
-bash testes/sabotagens.sh                      # 41 defeitos plantados, todos detectados; 1 controle
+python3 -m unittest discover -s testes -v      # 47 testes
+bash testes/sabotagens.sh                      # 45 defeitos plantados, todos detectados; 1 controle
 ```
 
 As saídas indicadas valem para um clone novo; para repetir do zero, `rm -rf estado`. A medição
@@ -105,7 +107,8 @@ reproduza o método e gere o seu número.
 ## Uso com ferramentas reais
 
 1. Copie `config.exemplo.json` para fora do repositório e aponte `ESPELHO_CONFIG` para ele.
-   Defina a fonte, os espelhos e o escopo: só os projetos listados saem da fonte.
+   Defina a fonte e os espelhos. Cada espelho declara o seu escopo (`escopo`), e só os projetos
+   listados chegam àquele quadro; espelho sem escopo é recusado antes de qualquer escrita.
 2. Guarde as credenciais em `~/.config/espelho-backlog/<ferramenta>.env`, com permissão 600.
    Para o GitHub, `gh auth login` basta.
 3. Use, na fonte, uma conta própria do sistema agêntico, sem perfil de administrador. O
@@ -113,6 +116,8 @@ reproduza o método e gere o seu número.
 
 Escopo é decisão de proteção de dados, não de conveniência: tudo que entra num espelho passa a
 existir na infraestrutura daquela ferramenta. Itens com dados de terceiros ficam fora do escopo.
+Como cada quadro é a vitrine de um público, cada um recebe só o escopo declarado para ele: o
+quadro de um cliente, só o projeto do cliente.
 
 ## Detalhes
 
@@ -136,15 +141,15 @@ conteúdo do backlog: está no `.gitignore` e não deve ser versionado.
 do WIP rodam também com uma fonte externa que não herda da local e só expõe a interface pública
 dos adaptadores, para provar que as regras não dependem da implementação. O backlog fictício tem
 um projeto fora do escopo, e o teste de escopo procura no espelho cada campo de texto dos itens
-dele. As sabotagens S5 a S41 vêm das rodadas de auditoria: defeitos que a auditoria plantou e os
-testes da época não detectavam, mais sabotagens dirigidas a cada afirmação de comportamento
-deste texto. O script exige que cada trecho sabotado seja único no arquivo, para que uma
-sabotagem não altere uma ocorrência repetida em outro ponto do código e passe sem detecção, e
-verifica que todo teste é derrubado por pelo menos uma sabotagem. Os adaptadores das ferramentas
-reais dependem de conta e não têm teste automatizado; foram verificados contra as ferramentas no
-experimento.
+dele. Outro teste usa dois espelhos com escopos diferentes, um por público, e confere que cada
+quadro recebe só o seu. As sabotagens S5 a S45 vêm das rodadas de auditoria: defeitos que a
+auditoria plantou e os testes da época não detectavam, mais sabotagens dirigidas a cada
+afirmação de comportamento deste texto. O script exige que cada trecho sabotado seja único no
+arquivo, para que uma sabotagem não altere uma ocorrência repetida em outro ponto do código e
+passe sem detecção, e verifica que todo teste é derrubado por pelo menos uma sabotagem. Os
+adaptadores das ferramentas reais dependem de conta e não têm teste automatizado; foram
+verificados contra as ferramentas no experimento.
 
 ## Licença
 
 Apache 2.0. Veja [LICENSE](LICENSE).
-

@@ -12,19 +12,19 @@
     "arquivo": "estado/fonte.json",
     "semente": "exemplos/backlog-ficticio.json"
   },
-  "escopo_espelho": ["produto-exemplo"],
   "dir_estado": "estado",
   "espelhos": {
-    "arquivo": {"adaptador": "arquivo_espelho", "arquivo": "estado/espelho-arquivo.json"}
+    "arquivo": {"adaptador": "arquivo_espelho", "arquivo": "estado/espelho-arquivo.json",
+                "escopo": ["produto-exemplo"]}
   },
   "_exemplos_de_espelhos_reais": {
-    "github": {"adaptador": "github", "repo": "espelho-do-backlog", "titulo_projeto": "Backlog — espelho", "duracao_iteracao_dias": 14},
-    "jira": {"adaptador": "jira", "site_env": "JIRA_SITE", "projeto": "CHAVE", "quadro": 1, "fuso": "-03:00",
+    "github": {"adaptador": "github", "escopo": ["produto-exemplo"], "repo": "espelho-do-backlog", "titulo_projeto": "Backlog — espelho", "duracao_iteracao_dias": 14},
+    "jira": {"adaptador": "jira", "escopo": ["produto-exemplo"], "site_env": "JIRA_SITE", "projeto": "CHAVE", "quadro": 1, "fuso": "-03:00",
              "tipos": {"Épico": "10001", "Tarefa": "10003", "Marco": "10003"},
              "reaproveitar_sprints_com_prefixo": null,
              "prioridades": {"Alta": "2", "Normal": "3", "Baixa": "4", "Imediata": "1"},
              "hora_inicio_sprint": "09:00:00", "hora_fim_sprint": "18:00:00",
              "campo_pontos": "customfield_10016", "campo_sprint": "customfield_10020", "campo_inicio": "customfield_10015"},
-    "trello": {"adaptador": "trello", "quadro": "Backlog — espelho", "fuso": "-03:00", "hora_entrega": "18:00:00"}
+    "trello": {"adaptador": "trello", "escopo": ["produto-exemplo"], "quadro": "Backlog — espelho", "fuso": "-03:00", "hora_entrega": "18:00:00"}
   }
 }
