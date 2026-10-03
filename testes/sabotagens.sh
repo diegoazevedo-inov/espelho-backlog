@@ -135,6 +135,9 @@ sabotar "S48 fonte criada antes de validar os escopos" FALHA \
   "$(troca espelho.py "[('    escopos = {nome: escopo_do_espelho(cfg, nome) for nome in a.espelhos}', '    nucleo.fonte(cfg).projetos(); escopos = {nome: escopo_do_espelho(cfg, nome) for nome in a.espelhos}')]")"
 sabotar "S49 escopo em texto vira lista de caracteres" FALHA \
   "$(troca espelho.py "[('    if escopo is not None and not (isinstance(escopo, list)', '    if False and not (isinstance(escopo, list)')]")"
+# Décima segunda rodada: o espelho só cria e atualiza; reduzir o escopo não apaga cartões.
+sabotar "S50 cartões fora do escopo atual são apagados do quadro" FALHA \
+  "$(troca adaptadores/arquivo_espelho.py "[('        self._gravar(d)\n        self._indexar()', '        vivos = {i[\"id\"] for p in projetos for i in nucleo.fonte(self.cfg).itens(p, abertos=False)}\n        d[\"cartoes\"] = {k: v for k, v in d[\"cartoes\"].items() if int(v[\"descricao\"].rsplit(\"op:\", 1)[1]) in vivos}\n        self._gravar(d)\n        self._indexar()')]")"
 sabotar "C0 controle: nenhuma mudança de comportamento" PASSA \
   "$(troca sm.py "[('# noqa: E402', '# noqa: E402 ')]")"
 

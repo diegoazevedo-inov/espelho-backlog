@@ -271,6 +271,21 @@ class Espelhamento(Base):
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "estado", "espelho-arquivo.json")))   # nem o outro
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "estado", "fonte.json")))             # nem a fonte
 
+    def test_reduzir_escopo_nao_remove_o_que_ja_foi_espelhado(self):
+        """O espelho só cria e atualiza: o que saiu do escopo fica no quadro até ser removido lá."""
+        quadro = {"adaptador": "arquivo_espelho", "arquivo": "estado/quadro-cliente.json"}
+        self._configurar_espelhos({"cliente": dict(quadro, escopo=["produto-exemplo", "projeto-restrito"])})
+        r = self.espelho("cliente")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn(12, self._cartoes_de("quadro-cliente.json"))
+        self._configurar_espelhos({"cliente": dict(quadro, escopo=["produto-exemplo"])})
+        r = self.espelho("cliente")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("(total 11)", r.stdout)
+        cartoes = self._cartoes_de("quadro-cliente.json")
+        self.assertEqual(len(cartoes), 12)
+        self.assertIn(12, cartoes)
+
     def test_filtro_por_projeto_protege_contra_fonte_que_devolve_a_mais(self):
         """Uma fonte pode devolver, para um projeto, itens de outros (subprojetos, por exemplo)."""
         pacote = os.path.join(self.tmp, "fonte_ampla")

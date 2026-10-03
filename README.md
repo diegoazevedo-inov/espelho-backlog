@@ -72,7 +72,7 @@ Trello e GitHub Projects:
 - **Uso:** de 28/09 a 02/10/2026, as 20 mudanças registradas na fonte foram feitas por conversa,
   nenhuma pela tela. A mesma medição registra que não houve progresso da sprint no período.
 
-Antes da publicação, rodadas sucessivas de auditoria independente, 49 testes e 49 defeitos
+Antes da publicação, rodadas sucessivas de auditoria independente, 50 testes e 50 defeitos
 plantados, todos detectados, com cada teste derrubado por pelo menos um deles. Números, custo de
 tradução de cada ferramenta e defeitos encontrados: [RESULTADOS.md](RESULTADOS.md).
 
@@ -96,8 +96,8 @@ python3 espelho.py arquivo                     # reflete no espelho local
 python3 espelho.py arquivo                     # segunda execução: nada muda
 python3 sm.py prova                            # quantas mudanças vieram do sistema agêntico
 
-python3 -m unittest discover -s testes -v      # 49 testes
-bash testes/sabotagens.sh                      # 49 defeitos plantados, todos detectados; 1 controle
+python3 -m unittest discover -s testes -v      # 50 testes
+bash testes/sabotagens.sh                      # 50 defeitos plantados, todos detectados; 1 controle
 ```
 
 As saídas indicadas valem para um clone novo; para repetir do zero, `rm -rf estado`. A medição
@@ -137,20 +137,21 @@ fora deste repositório, de fonte ou de espelho, é indicado pelo nome do módul
 (`pacote.modulo`). O diretório `estado/` guarda a cópia de cada item espelhado, ou seja, o
 conteúdo do backlog: está no `.gitignore` e não deve ser versionado.
 
-**Testes.** No espelho local, os testes conferem o conteúdo de cada cartão contra a fonte (coluna,
-título, horas, sprint, épico pai e descrição), e não só a contagem. As travas da DoD e do WIP rodam
-também com uma fonte externa que não herda da local e só expõe a interface pública dos adaptadores,
-para provar que as regras não dependem da implementação. O backlog fictício tem um projeto fora do
-escopo, e o teste de escopo procura no espelho cada campo de texto dos itens dele. Outro teste usa
-dois espelhos com escopos diferentes, um por público, e confere que cada quadro recebe só o seu: os
-itens, os projetos e as sprints. Com uma fonte externa que devolve também itens de outros projetos,
-o quadro do cliente continua recebendo só o seu. As sabotagens S5 a S49 vêm das rodadas de
-auditoria: defeitos que a auditoria plantou e os testes da época não detectavam, mais sabotagens
-dirigidas a cada afirmação de comportamento deste texto. O script exige que cada trecho sabotado
-seja único no arquivo, para que uma sabotagem não altere uma ocorrência repetida em outro ponto do
-código e passe sem detecção, e verifica que todo teste é derrubado por pelo menos uma sabotagem. Os
-adaptadores das ferramentas reais dependem de conta e não têm teste automatizado; foram verificados
-contra as ferramentas no experimento.
+**Testes.** No espelho local, os testes conferem o conteúdo de cada cartão contra a fonte
+(coluna, título, horas, sprint, épico pai e descrição), e não só a contagem. As travas da DoD e
+do WIP rodam também com uma fonte externa que não herda da local e só expõe a interface pública
+dos adaptadores, para provar que as regras não dependem da implementação. O backlog fictício tem
+um projeto fora do escopo, e o teste de escopo procura no espelho cada campo de texto dos itens
+dele. Outro teste usa dois espelhos com escopos diferentes, um por público, e confere que cada
+quadro recebe só o seu: os itens, os projetos e as sprints. Com uma fonte externa que devolve
+também itens de outros projetos, o quadro do cliente continua recebendo só o seu. Reduzir o
+escopo e espelhar de novo mantém no quadro os cartões que já estavam lá. As sabotagens S5 a S50
+vêm das rodadas de auditoria: defeitos que a auditoria plantou e os testes da época não
+detectavam, mais sabotagens dirigidas a cada afirmação de comportamento deste texto. O script
+exige que cada trecho sabotado seja único no arquivo, para que uma sabotagem não altere uma
+ocorrência repetida em outro ponto do código e passe sem detecção, e verifica que todo teste é
+derrubado por pelo menos uma sabotagem. Os adaptadores das ferramentas reais dependem de conta e
+não têm teste automatizado; foram verificados contra as ferramentas no experimento.
 
 ## Licença
 

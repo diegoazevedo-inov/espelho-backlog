@@ -101,9 +101,10 @@ deixados para decisão do proprietário.
 | 8 | `26e9859` | 2 testes que nunca falham + uma cópia de referência que não se atualiza | testes que nunca falham: 2 de 2 detectados pela verificação de cobertura; cópia não atualizada: não detectada | a cópia de referência era verificada só após a primeira carga, e não após atualizações; nova asserção e sabotagem S41 |
 | 9 | `b1c8fd4` | a cópia de referência que não se atualiza + suíte e script | todas detectadas | nenhum bloqueante ou ressalva; veredito "pode ir a público" |
 | 10 | `52a655a` | escopo por público, demonstrado com duas configurações | — | a abertura apresentava um quadro por público, mas o escopo valia para todos os espelhos de uma configuração; o escopo passou a ser próprio e obrigatório em cada espelho (sabotagens S42 a S45); a Definition of Ready é aplicada pela skill, não pelo código |
-| 11 | `d1a7a60` | 6 dirigidas ao escopo por espelho | 3 de 6 | as sprints entregues ao quadro e o segundo filtro por projeto não eram verificados; a fonte era criada antes da validação; escopo em texto virava lista de caracteres; reduzir o escopo não remove cartões já espelhados (declarado no README); sabotagens S46 a S49 |
+| 11 | `d1a7a60` | 6 dirigidas ao escopo por espelho | 3 de 6 | as sprints entregues ao quadro e o segundo filtro por projeto não eram verificados; a criação da fonte antes da validação não era detectada; escopo em texto virava lista de caracteres; reduzir o escopo não remove cartões já espelhados (declarado no README); sabotagens S46 a S49 |
+| 12 | `ceaf6c5` | as 3 não detectadas na rodada 11 e a do escopo em texto, reescritas + dirigidas às afirmações novas | todas, exceto a dirigida à redução de escopo | a afirmação de que reduzir o escopo não remove cartões já espelhados não tinha teste; teste e sabotagem S50 |
 
-Cada defeito não detectado e cada brecha resultaram num teste e numa sabotagem (S5 a S49), e os
+Cada defeito não detectado e cada brecha resultaram num teste e numa sabotagem (S5 a S50), e os
 textos passaram a afirmar apenas o que o código sustenta. O próprio script de sabotagem continha
 um alvo ambíguo: um trecho repetido no arquivo era alterado numa ocorrência diferente da
 pretendida, e a sabotagem passava sem detecção; o script passou a exigir trechos únicos.
