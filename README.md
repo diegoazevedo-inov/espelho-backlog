@@ -15,8 +15,8 @@ significa refazer o processo. As regras do método (Definition of Ready, Definit
 limite de WIP, capacidade) passam a depender de como cada ferramenta foi configurada. Nenhuma
 das ferramentas testadas, na configuração padrão, impede que um item seja concluído sem
 evidência ou que uma coluna passe do limite de WIP. Com configuração, parte disso é possível em
-algumas delas, como um validador de transição no Jira, mas a configuração é de cada ferramenta e
-não acompanha a troca.
+algumas delas, como um validador de transição no Jira (não avaliado neste experimento), mas a
+configuração é de cada ferramenta e não acompanha a troca.
 
 Os públicos, por outro lado, são vários: níveis diferentes dentro da equipe e, principalmente,
 clientes, cada um com a sua forma de acompanhar o trabalho. O quadro deveria ser a vitrine de
