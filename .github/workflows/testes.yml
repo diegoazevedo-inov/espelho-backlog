@@ -1,0 +1,17 @@
+# Integração contínua: os 50 testes rodam sozinhos a cada push ou pull request.
+name: testes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m unittest discover -s testes -v 2>&1 | tail -5
