@@ -1,5 +1,7 @@
 # Espelho Backlog
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24237082.svg)](https://doi.org/10.5281/zenodo.24237082)
+
 [English summary](README.en.md)
 
 O processo de trabalho como código, fora de qualquer ferramenta: a ferramenta volta a ser meio.

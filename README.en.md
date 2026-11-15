@@ -1,5 +1,7 @@
 # Espelho Backlog
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24237082.svg)](https://doi.org/10.5281/zenodo.24237082)
+
 The work process as code, outside any tool: the tool goes back to being a means. One of them
 holds the source of truth, and the others receive its reflection, each serving as a showcase for
 an audience. The method is operated by agentic systems through natural language: whoever works
